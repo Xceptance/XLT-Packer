@@ -1,0 +1,67 @@
+#! /bin/bash
+# /etc/init.d/ipv6tunnel
+#
+
+### BEGIN INIT INFO
+# Provides:          ipv6tunnel
+# Required-Start:    
+# Required-Stop:     
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Setup IPv6 tunnel
+# Description:       Setup IPv6 tunnel
+### END INIT INFO
+
+# Carry out specific functions when asked to by the system
+case "$1" in
+	start)
+		echo "Setup IPv6 6to4 ..."
+		
+		CONFIG_FILE=/etc/network/interfaces.d/tun6to6.cfg
+		
+		if [ -e $CONFIG_FILE ]; then
+			sudo ifdown tun6to4
+			sudo rm $CONFIG_FILE
+		fi
+		
+		LOCAL_IP4=`ec2metadata --local-ipv4`
+		PUBLIC_IP4=`ec2metadata --public-ipv4`
+
+		PREFIX_IP6=`ipv6calc --quiet --action conv6to4 $PUBLIC_IP4`
+		SUFFIX_IP6="dead:beef:dead:beef"
+		PUBLIC_IP6="$PREFIX_IP6$SUFFIX_IP6"
+		echo "Public IPv6 address using 6to4 will be: $PUBLIC_IP6"
+
+		echo "configuring network interface"
+		sudo bash -c "cat >> $CONFIG_FILE << EOF
+### >>> IPv6 6to4
+auto tun6to4
+iface tun6to4 inet6 v4tunnel
+address $PUBLIC_IP6
+netmask 16
+gateway ::192.88.99.1
+endpoint any
+local $LOCAL_IP4
+### <<< IPv6 6to4
+EOF"
+		echo "starting tun6to4 device..."
+		sudo ifup tun6to4
+		echo ""
+		;;
+	stop)
+		sudo ifdown tun6to4
+		if [ -e $CONFIG_FILE ]; then
+			sudo rm $CONFIG_FILE
+		fi
+		;;
+	restart)
+		$0 stop
+		$0 start
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 0
+		;;
+esac
+
+exit 0

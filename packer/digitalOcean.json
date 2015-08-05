@@ -1,0 +1,85 @@
+{
+  "variables": {
+    "region" : "nyc2",
+    "xlt-version" : "LATEST",
+    "image_name" : "XLT-Image-{{timestamp}}",
+    "api_token": "<YOUR_DIGITAL_OCEAN_API_TOKEN>"
+  },
+  "builders": [
+  {
+    "type": "digitalocean",
+    "api_token": "{{user `api_token`}}",
+    "image": "ubuntu-14-04-x64",
+    "region": "{{user `region`}}",
+    "size": "512mb",
+    "snapshot_name": "{{user `image_name`}}"
+  }
+  ],
+  "provisioners": [
+   {
+    "type": "shell",
+      "inline": [
+      "mkdir ~/xlt-home",
+      "mkdir ~/init.d"
+    ]
+  },
+  {
+  	 "type": "file",
+  	 "source": "./scripts/init.d/ipv6tunnel",
+  	 "destination": "~/init.d/ipv6tunnel"
+  },
+  {
+  	 "type": "file",
+  	 "source": "./scripts/init.d/mountdev",
+  	 "destination": "~/init.d/mountdev"
+  },
+  {
+  	 "type": "file",
+  	 "source": "./scripts/init.d/ntptime",
+  	 "destination": "~/init.d/ntptime"
+  },
+  {
+  	 "type": "file",
+  	 "source": "./scripts/init.d/userdata",
+  	 "destination": "~/init.d/userdata"
+  },
+  {
+  	 "type": "file",
+  	 "source": "./scripts/init.d/xlt",
+  	 "destination": "~/init.d/xlt"
+  },
+  {
+  	 "type": "file",
+  	 "source": "./scripts/xlt-home/getUserData.sh",
+  	 "destination": "~/xlt-home/getUserData.sh"
+  },
+  {
+  	 "type": "file",
+  	 "source": "./scripts/xlt-home/prepare-image-creation.sh",
+  	 "destination": "~/xlt-home/prepare-image-creation.sh"
+  },
+  {
+  	 "type": "file",
+  	 "source": "./scripts/xlt-home/setup-image.sh",
+  	 "destination": "~/xlt-home/setup-image.sh"
+  },
+  {
+  	 "type": "file",
+  	 "source": "./scripts/xlt-home/start-xlt.sh",
+  	 "destination": "~/xlt-home/start-xlt.sh"
+  },
+  {
+  	 "type": "file",
+  	 "source": "./scripts/xlt-home/update-xlt.sh",
+  	 "destination": "~/xlt-home/update-xlt.sh"
+  },
+  {
+    "type": "shell",
+      "inline": [
+      "sleep 30",
+      "sudo chmod +x ~/xlt-home/*.sh",
+      "sudo chmod +x ~/init.d/*",
+      "sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt-version`}}"
+    ]
+  }]
+}

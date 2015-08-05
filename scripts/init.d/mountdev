@@ -1,0 +1,106 @@
+#! /bin/bash
+# /etc/init.d/mountdev
+#
+
+### BEGIN INIT INFO
+# Provides:          mountdev
+# Required-Start:
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: Mount devices to /mnt and /tmp
+# Description:       Mount devices (if available) to /mnt and /tmp formatted with file system type ext4
+### END INIT INFO
+
+MNT_DIR=/mnt
+DEVICE_MNT=/dev/xvdb
+
+TMP_DIR=/tmp
+DEVICE_TMP=/dev/xvdc
+
+function formatdev {
+	DEVICE=$1
+	TARGET=$2
+	
+	# check device exists
+	if [ -e $DEVICE ]; then
+	
+		# check device is not mounted
+		if [ `mount | grep -c $TARGET` -ne 0 ]; then
+			sudo umount $TARGET
+		fi
+		
+		# format if necessary
+		if [[ ! `file -sL $DEVICE` =~ ext4 ]]; then
+			echo "Make ext4 file system on $DEVICE"
+			sudo mkfs.ext4 $DEVICE
+		else
+			echo "$DEVICE has ext4 file system already"
+		fi
+		
+		return 0;
+	else
+		echo "Device $DEVICE not found"
+	fi
+	
+	return -1;
+}
+
+
+# Carry out specific functions when asked to by the system
+case "$1" in
+	start)
+		# detect instance type
+		EC2_INSTANCE_TYPE="`wget -q -O - http://169.254.169.254/latest/meta-data/instance-type`"
+		
+		# in case of t1.micro there's no further partition so we focus on all the other types.
+		if [[ ! $EC2_INSTANCE_TYPE =~ "micro" ]]; then
+		
+			# TMP
+			#
+			# mount TMP ext4 formatted
+			formatdev $DEVICE_TMP $TMP_DIR
+			if [ $? -eq 0 ]; then
+				sudo mount $DEVICE $TMP_DIR
+				sudo chmod 1777 /tmp
+			fi
+		
+			# MTN
+			#
+			# check if a mount point is configured for $MNT_DIR
+			IS_MNT=`grep -c /mnt /etc/fstab`
+			if [ $IS_MNT -gt 0 ]; then
+			
+				echo "Waiting for mount point to come up ..."
+				# or we run into a timeout
+				IS_MNT_READY=-1
+				TIMEOUT=0
+				until [ $IS_MNT_READY -ge 1 ] || [ $TIMEOUT -ge 60 ]; do
+					# check if the mount point is ready
+					IS_MNT_READY=`mount | grep -c /mnt\ `
+					sleep 1s
+					TIMEOUT=$(( $TIMEOUT + 1 ))
+				done
+				sleep 5s
+			fi
+			
+			# umount, format as ext4 if necessary and remount MNT
+			formatdev $DEVICE_MNT $MNT_DIR
+			if [ $? -eq 0 ]; then
+				# mount device
+				sudo mount $MNT_DIR
+			fi
+		echo
+			echo "Nothing to do for micro instance."
+		fi
+		;;
+	stop)
+		printf "Please unmount devices $MNT_DIR and $TMP_DIR manually:\n  sudo umount $MNT_DIR\n  sudo umount $TMP_DIR"
+		;;
+	*)
+		echo "Usage: $0 {start}"
+		exit 1
+		;;
+esac
+
+exit 0

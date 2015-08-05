@@ -1,0 +1,27 @@
+#! /bin/bash
+# /etc/init.d/ntptime
+#
+
+### BEGIN INIT INFO
+# Provides:          ntptime
+# Required-Start:    
+# Required-Stop:     
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: Adjust local time
+# Description:       Adjust local time
+### END INIT INFO
+
+# Carry out specific functions when asked to by the system
+case "$1" in
+	start)
+		echo "Adjust local time"
+		ntpdate-debian
+		;;
+	*)
+		echo "Usage: $0 {start}"
+		exit 0
+		;;
+esac
+
+exit 0

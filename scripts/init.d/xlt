@@ -1,0 +1,72 @@
+#! /bin/bash
+# /etc/init.d/xlt
+#
+
+### BEGIN INIT INFO
+# Provides:          xlt
+# Required-Start:    $local_fs $syslog
+# Required-Stop:     $local_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start/Stop XLT
+# Description:       Start/Stop XLT
+### END INIT INFO
+
+# put the getUserData.sh into an reachable place, this happens in userdata and xlt
+# since it depends on the runlevel which is execudet first
+cp ~/xlt-home/getUserData.sh /var/local/
+
+
+XLT_WORKDIR=/mnt/xlt
+XLT_USER=xlt
+XLT_HOME=/home/$XLT_USER
+XLT_SCRIPT_NAME=start-xlt.sh
+IPv6_SCRIPT=ipv6.setup.sh
+
+# Read in system's default locale definition and export it.
+if [ -r /etc/default/locale ]; then
+    . /etc/default/locale
+    export LANG
+fi
+
+# Carry out specific functions when asked to by the system
+case "$1" in
+	start)
+
+    echo "Adding xlt user to ssh"
+    sudo mkdir -p  $XLT_HOME/.ssh
+    sudo chown $XLT_USER:$XLT_USER $XLT_HOME/.ssh
+    sudo cp /root/.ssh/authorized_keys $XLT_HOME/.ssh
+    sudo chown $XLT_USER:$XLT_USER $XLT_HOME/.ssh/authorized_keys
+    sudo echo 'AllowUsers xlt' >> /etc/ssh/sshd_config
+
+		echo "Creating primary home $XLT_WORKDIR"
+		sudo mkdir -p $XLT_WORKDIR
+		if [ ! -d $XLT_WORKDIR ]; then
+			echo "FAILED creating primary home $XLT_WORKDIR"
+			exit -1
+		fi
+		sudo chown $XLT_USER:$XLT_USER $XLT_WORKDIR
+		echo "Primary home created"
+
+		echo "Starting XLT agent controllers from $XLT_HOME ..."
+		cd $XLT_HOME
+		sudo -u $XLT_USER ./$XLT_SCRIPT_NAME xlt.zip $XLT_WORKDIR 1 noremove
+
+
+		;;
+	stop)
+		echo "Stopping XLT agent controllers ..."
+		sudo -u $XLT_USER killall -9 -u $XLT_USER java
+		;;
+	restart)
+		$0 stop
+		$0 start
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
+		;;
+esac
+
+exit 0
