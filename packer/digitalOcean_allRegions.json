@@ -24,6 +24,15 @@
     "snapshot_name": "{{user `image_name`}}"
   },
   {
+    "name": "ams2",
+    "type": "digitalocean",
+    "api_token": "{{user `api_token`}}",
+    "image": "ubuntu-14-04-x64",
+    "region": "ams3",
+    "size": "512mb",
+    "snapshot_name": "{{user `image_name`}}"
+  },
+  {
     "name": "fra1",
     "type": "digitalocean",
     "api_token": "{{user `api_token`}}",
