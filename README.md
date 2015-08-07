@@ -74,7 +74,7 @@ To create a GCE image you'll need to pass:
  
 Please be reminded, that the image names need to apply to naming rules: must start with an lower case letter, and only have hyphens, numbers and lower letters. In Other words it must be a match of regex `(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)`
 
-Also note, that you need to allow your instances to use port 8500 to connect to the agent controllers. You can do this by adding a firewall rule to a network at your network settings at: https://console.developers.google.com/project/<YOUR_PROJECT>/networks/list
+Also note, that you need to allow your instances to use port 8500 to connect to the agent controllers. You can do this by adding a firewall rule to a network at your network settings at: `https://console.developers.google.com/project/<YOUR_PROJECT>/networks/list`
  
 ### All Region Files
 
