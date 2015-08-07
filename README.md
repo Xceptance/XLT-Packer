@@ -83,6 +83,9 @@ Packer allows parallel image creation, which give a significant speedup if you n
 You can also use a subset of the provided regions by whitelisting or excluding some regions:
 
 `$ <PATH_TO_PACKER>/packer build -except=us-east-1 packer/amazon_allRegions.json`
+
+or
+
 `$ <PATH_TO_PACKER>/packer build -only=us-east-1,us-west-1 packer/amazon_allRegions.json`
 
 Of course you also need to pass the vendor and region specific variables, which can be found on top of each `.json` file.
