@@ -69,7 +69,7 @@ To create a GCE image you'll need to pass:
  - the region you want to create the image
  - the XLT version you want to use (default is: LATEST)
  - the name of the image (default is: xlt-image-TIMESTAMP)
- - your google copmute account file (How to get this see [here](https://www.packer.io/docs/builders/googlecompute.html)
+ - your google copmute account file (How to get this see [here](https://www.packer.io/docs/builders/googlecompute.html))
  - your google project ID
  
 Please be reminded, that the image names need to apply to naming rules: must start with an lower case letter, and only have hyphens, numbers and lower letters. In Other words it must be a match of regex `(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)`
