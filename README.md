@@ -4,6 +4,7 @@ Packer files to build cloud machine images for Xceptance LoadTest.
 Currently you can find skripts for the following cloud vendors:
  - DigitalOcean
  - Amazon EC2
+ - Google Compute Engine
  
 NOTE: Please note that this is not for cloud managing, but only for image creation.
  
@@ -50,17 +51,31 @@ To create a AWS EC-2 AMI you'll need to pass:
  
 NOTE: The XLT images are based on Ubuntu 14.04 (trusty), so using another base OS (even another Ubuntu) may not work. We preconfigured AMIs for all regions in the `packer/amazon_allRegions.json` file. You can also find a list of base images [here](https://cloud-images.ubuntu.com/locator/ec2/).
  
-Please be remindet, that the AMI names have some special rules: AMI names must be between 3 and 128 characters long, and may contain letters, numbers, '(', ')', '.', '-', '/' and '_'
+Please be reminded, that the AMI names need to apply to naming rules: AMI names must be between 3 and 128 characters long, and may contain letters, numbers, '(', ')', '.', '-', '/' and '_'
 
+Also note, that you need to allow your instances to use port 8500 to connect to the agent controllers. You can do this by adding an adapted security group when launching an instance.
 
 ### DigitalOcean Configuration
 
 To create a DigitalOcean image you'll need to pass:
  - the region you want to create the image
  - the XLT version you want to use (default is: LATEST)
- - the name of the AMI (default is: XLT-Image-TIMESTAMP)
+ - the name of the image (default is: XLT-Image-TIMESTAMP)
  - your DigitalOcean API token
 
+### Google Compute Engine Configuration
+
+To create a GCE image you'll need to pass:
+ - the region you want to create the image
+ - the XLT version you want to use (default is: LATEST)
+ - the name of the image (default is: xlt-image-TIMESTAMP)
+ - your google copmute account file (How to get this see [here](https://www.packer.io/docs/builders/googlecompute.html)
+ - your google project ID
+ 
+Please be reminded, that the image names need to apply to naming rules: must start with an lower case letter, and only have hyphens, numbers and lower letters. In Other words it must be a match of regex `(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)`
+
+Also note, that you need to allow your instances to use port 8500 to connect to the agent controllers. You can do this by adding a firewall rule to a network at your network settings at: https://console.developers.google.com/project/<YOUR_PROJECT>/networks/list
+ 
 ### All Region Files
 
 Packer allows parallel image creation, which give a significant speedup if you need to create more than one image. So if you need to create images in multiple regions use the `_allRegions.json` files.

@@ -1,0 +1,177 @@
+{
+  "variables": {
+    "account_file" : "<PATH_TO_YOUR_ACCOUNT_JSON_FILE>",
+    "project": "xlt-image",
+    "xlt_version" : "LATEST",
+    
+    "image_name_us_a" : "xlt-image-{{timestamp}}-us-a",
+    "image_name_us_b" : "xlt-image-{{timestamp}}-us-b",
+    "image_name_us_c" : "xlt-image-{{timestamp}}-us-c",
+    "image_name_us_f" : "xlt-image-{{timestamp}}-us-f",
+    "image_name_eu_b" : "xlt-image-{{timestamp}}-eu-b",
+    "image_name_eu_c" : "xlt-image-{{timestamp}}-eu-c",
+    "image_name_eu_d" : "xlt-image-{{timestamp}}-eu-d",
+    "image_name_as_a" : "xlt-image-{{timestamp}}-as-a",
+    "image_name_as_b" : "xlt-image-{{timestamp}}-as-b",
+    "image_name_as_c" : "xlt-image-{{timestamp}}-as-c"
+  },
+  "builders": [
+  {
+    "name": "us-central1-a",
+    "type": "googlecompute",
+    "account_file": "{{user `account_file`}}",
+    "project_id": "{{user `project`}}",
+    "source_image": "ubuntu-1404-trusty-v20150805",
+    "zone": "us-central1-a",
+    "image_name": "{{user `image_name_us_a`}}"
+  },
+  {
+    "name": "us-central1-b",
+    "type": "googlecompute",
+    "account_file": "{{user `account_file`}}",
+    "project_id": "{{user `project`}}",
+    "source_image": "ubuntu-1404-trusty-v20150805",
+    "zone": "us-central1-b",
+    "image_name": "{{user `image_name_us_b`}}"
+  },
+  {
+    "name": "us-central1-c",
+    "type": "googlecompute",
+    "account_file": "{{user `account_file`}}",
+    "project_id": "{{user `project`}}",
+    "source_image": "ubuntu-1404-trusty-v20150805",
+    "zone": "us-central1-c",
+    "image_name": "{{user `image_name_us_c`}}"
+  },
+  {
+    "name": "us-central1-f",
+    "type": "googlecompute",
+    "account_file": "{{user `account_file`}}",
+    "project_id": "{{user `project`}}",
+    "source_image": "ubuntu-1404-trusty-v20150805",
+    "zone": "us-central1-f",
+    "image_name": "{{user `image_name_us_f`}}"
+  },
+  {
+    "name": "europe-west1-b",
+    "type": "googlecompute",
+    "account_file": "{{user `account_file`}}",
+    "project_id": "{{user `project`}}",
+    "source_image": "ubuntu-1404-trusty-v20150805",
+    "zone": "europe-west1-b",
+    "image_name": "{{user `image_name_eu_b`}}"
+  },
+  {
+    "name": "europe-west1-c",
+    "type": "googlecompute",
+    "account_file": "{{user `account_file`}}",
+    "project_id": "{{user `project`}}",
+    "source_image": "ubuntu-1404-trusty-v20150805",
+    "zone": "europe-west1-c",
+    "image_name": "{{user `image_name_eu_c`}}"
+  },
+  {
+    "name": "europe-west1-d",
+    "type": "googlecompute",
+    "account_file": "{{user `account_file`}}",
+    "project_id": "{{user `project`}}",
+    "source_image": "ubuntu-1404-trusty-v20150805",
+    "zone": "europe-west1-d",
+    "image_name": "{{user `image_name_eu_d`}}"
+  },
+  {
+    "name": "asia-east1-a",
+    "type": "googlecompute",
+    "account_file": "{{user `account_file`}}",
+    "project_id": "{{user `project`}}",
+    "source_image": "ubuntu-1404-trusty-v20150805",
+    "zone": "asia-east1-a",
+    "image_name": "{{user `image_name_as_a`}}"
+  },
+  {
+    "name": "asia-east1-b",
+    "type": "googlecompute",
+    "account_file": "{{user `account_file`}}",
+    "project_id": "{{user `project`}}",
+    "source_image": "ubuntu-1404-trusty-v20150805",
+    "zone": "asia-east1-b",
+    "image_name": "{{user `image_name_as_b`}}"
+  },
+  {
+    "name": "asia-east1-c",
+    "type": "googlecompute",
+    "account_file": "{{user `account_file`}}",
+    "project_id": "{{user `project`}}",
+    "source_image": "ubuntu-1404-trusty-v20150805",
+    "zone": "asia-east1-c",
+    "image_name": "{{user `image_name_as_c`}}"
+  }
+  ],
+   "provisioners": [
+   {
+    "type": "shell",
+      "inline": [
+      "mkdir ~/xlt-home",
+      "mkdir ~/init.d"
+    ]
+  },
+  {
+    "type": "file",
+    "source": "./scripts/init.d/ipv6tunnel",
+    "destination": "~/init.d/ipv6tunnel"
+  },
+  {
+    "type": "file",
+    "source": "./scripts/init.d/mountdev",
+    "destination": "~/init.d/mountdev"
+  },
+  {
+    "type": "file",
+    "source": "./scripts/init.d/ntptime",
+    "destination": "~/init.d/ntptime"
+  },
+  {
+    "type": "file",
+    "source": "./scripts/init.d/userdata",
+    "destination": "~/init.d/userdata"
+  },
+  {
+    "type": "file",
+    "source": "./scripts/init.d/xlt",
+    "destination": "~/init.d/xlt"
+  },
+  {
+    "type": "file",
+    "source": "./scripts/xlt-home/getUserData.sh",
+    "destination": "~/xlt-home/getUserData.sh"
+  },
+  {
+    "type": "file",
+    "source": "./scripts/xlt-home/prepare-image-creation.sh",
+    "destination": "~/xlt-home/prepare-image-creation.sh"
+  },
+  {
+    "type": "file",
+    "source": "./scripts/xlt-home/setup-image.sh",
+    "destination": "~/xlt-home/setup-image.sh"
+  },
+  {
+    "type": "file",
+    "source": "./scripts/xlt-home/start-xlt.sh",
+    "destination": "~/xlt-home/start-xlt.sh"
+  },
+  {
+    "type": "file",
+    "source": "./scripts/xlt-home/update-xlt.sh",
+    "destination": "~/xlt-home/update-xlt.sh"
+  },
+  {
+    "type": "shell",
+      "inline": [
+      "sleep 30",
+      "sudo chmod +x ~/xlt-home/*.sh",
+      "sudo chmod +x ~/init.d/*",
+      "sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt-version`}}"
+    ]
+  }]
+}
