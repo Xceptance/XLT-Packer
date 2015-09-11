@@ -18,10 +18,11 @@ To create images you need to build the according .json file for your cloud vendo
 
 `$ <PATH_TO_PACKER>/packer build packer/amazon.json`
 
-## Confiuration 
+## Configuration 
 
-Before you create an image, you need to provide some additional information, like the authentification for your vendor.
-You could either edit the according json file (e.g. the packer/digitalOcean.json) and fill out the missing values or you could provide the information in the commandline by passing `-var 'variable_name=value'`. So e.g. to pass XLT version 4.5.2 to your EC2 AMI and set the region to eu-central-1 you would run:
+Before you create an image, you need to provide some additional information, such as the authentication data for your vendor. You could either edit the respective json file (e.g. the packer/digitalOcean.json) and fill out the missing values or you provide the information on the commandline by passing `-var 'variable_name=value'`. 
+
+E.g. to pass XLT version 4.5.2 to your EC2 AMI and set the region to eu-central-1 you would run:
 
 `$ <PATH_TO_PACKER>/packer build -var 'region=eu-central-1' -var 'xlt-version=4.5.2' packer/amazon.json`
 
