@@ -1,7 +1,7 @@
 # XLT-Packer
 Packer files to build cloud machine images for Xceptance LoadTest.
 
-Currently you can find skripts for the following cloud vendors:
+Currently you can find scripts for the following cloud vendors:
  - DigitalOcean
  - Amazon EC2
  - Google Compute Engine
@@ -45,7 +45,7 @@ To create a AWS EC-2 AMI you'll need to pass:
  - the XLT version you want to use (default is: LATEST)
  - the name of the AMI (default is: XLT-Image-TIMESTAMP)
  - your AWS secret key
- - your AWS acces key
+ - your AWS access key
  - the name of a ssh key-pair stored in your AWS account 
  - the path to the according private key file
  - the base AMI on which the XLT should be build
@@ -70,10 +70,10 @@ To create a GCE image you'll need to pass:
  - the region you want to create the image
  - the XLT version you want to use (default is: LATEST)
  - the name of the image (default is: xlt-image-TIMESTAMP)
- - your google copmute account file (How to get this see [here](https://www.packer.io/docs/builders/googlecompute.html))
+ - your google compute account file (How to get this see [here](https://www.packer.io/docs/builders/googlecompute.html))
  - your google project ID
  
-Please be reminded, that the image names need to apply to naming rules: must start with an lower case letter, and only have hyphens, numbers and lower letters. In Other words it must be a match of regex `(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)`
+Please be reminded, that the image names need to apply to naming rules: must start with an lower case letter, and only have hyphens, numbers and lower letters. In other words it must be a match of regex `(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)`
 
 Also note, that you need to allow your instances to use port 8500 to connect to the agent controllers. You can do this by adding a firewall rule to a network at your network settings at: `https://console.developers.google.com/project/<YOUR_PROJECT>/networks/list`
  
