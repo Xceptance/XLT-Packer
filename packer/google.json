@@ -1,86 +1,38 @@
 {
-  "variables": {
-    "region" : "us-central1-a",
-    "account_file" : "<PATH_TO_YOUR_ACCOUNT_JSON_FILE>",
-    "project": "xlt-image",
-    "xlt_version" : "LATEST",
-    "image_name" : "xlt-image-{{timestamp}}"
-  },
-  "builders": [
-  {
-    "type": "googlecompute",
-    "account_file": "{{user `account_file`}}",
-    "project_id": "{{user `project`}}",
-    "source_image": "ubuntu-1404-trusty-v20150805",
-    "zone": "{{user `region`}}",
-    "image_name": "{{user `image_name`}}"
-  }
-  ],
-   "provisioners": [
-   {
-    "type": "shell",
-      "inline": [
-      "mkdir ~/xlt-home",
-      "mkdir ~/init.d"
-    ]
-  },
-  {
-    "type": "file",
-    "source": "./scripts/init.d/ipv6tunnel",
-    "destination": "~/init.d/ipv6tunnel"
-  },
-  {
-    "type": "file",
-    "source": "./scripts/init.d/mountdev",
-    "destination": "~/init.d/mountdev"
-  },
-  {
-    "type": "file",
-    "source": "./scripts/init.d/ntptime",
-    "destination": "~/init.d/ntptime"
-  },
-  {
-    "type": "file",
-    "source": "./scripts/init.d/userdata",
-    "destination": "~/init.d/userdata"
-  },
-  {
-    "type": "file",
-    "source": "./scripts/init.d/xlt",
-    "destination": "~/init.d/xlt"
-  },
-  {
-    "type": "file",
-    "source": "./scripts/xlt-home/getUserData.sh",
-    "destination": "~/xlt-home/getUserData.sh"
-  },
-  {
-    "type": "file",
-    "source": "./scripts/xlt-home/prepare-image-creation.sh",
-    "destination": "~/xlt-home/prepare-image-creation.sh"
-  },
-  {
-    "type": "file",
-    "source": "./scripts/xlt-home/setup-image.sh",
-    "destination": "~/xlt-home/setup-image.sh"
-  },
-  {
-    "type": "file",
-    "source": "./scripts/xlt-home/start-xlt.sh",
-    "destination": "~/xlt-home/start-xlt.sh"
-  },
-  {
-    "type": "file",
-    "source": "./scripts/xlt-home/update-xlt.sh",
-    "destination": "~/xlt-home/update-xlt.sh"
-  },
-  {
-    "type": "shell",
-      "inline": [
-      "sleep 30",
-      "sudo chmod +x ~/xlt-home/*.sh",
-      "sudo chmod +x ~/init.d/*",
-      "sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt-version`}}"
-    ]
-  }]
+	"variables": {
+		"region": "us-central1-a",
+		"account_file": "<PATH_TO_YOUR_ACCOUNT_JSON_FILE>",
+		"project": "xlt-image",
+		"xlt_version": "4.9.3",
+		"image_version": "4-9-3"
+	},
+	"builders": [
+		{
+			"type": "googlecompute",
+			"account_file": "{{user `account_file`}}",
+			"project_id": "{{user `project`}}",
+			"zone": "{{user `zone`}}",
+			"source_image_family": "ubuntu-1604-lts",
+			"image_name": "xlt-{{user `image_version`}}-{{isotime \"v20060102\"}}",
+			"image_family": "xlt-4-9-x",
+			"image_description": "Standard Ubuntu 16.04 LTS with XLT pre-installed.",
+			"ssh_username": "root"
+		}
+	],
+	"provisioners": [
+		{
+			"type": "file",
+			"source": "./scripts/",
+			"destination": "~"
+		},
+		{
+			"type": "shell",
+			"inline": [
+				"sleep 30",
+				"sudo chmod +x ~/xlt-home/*.sh",
+				"sudo chmod +x ~/init.d/*",
+				"sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt-version`}}"
+			]
+		}
+	]
 }
