@@ -1,0 +1,12 @@
+[Unit]
+Description=Start XLT process
+After=network-online.target cloud-init.service
+Wants=network-online.target
+
+[Service]
+Type=forking
+ExecStart=/etc/init.d/xlt start
+TimeoutSec=0
+
+[Install]
+WantedBy=multi-user.target

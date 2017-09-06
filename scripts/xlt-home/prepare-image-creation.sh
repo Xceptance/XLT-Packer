@@ -13,10 +13,12 @@ function prepareAmi {
 	sudo rm /etc/ssh/ssh_host_*
 	if [ $? != 0 ]; then exit 4; fi
 
-	sudo rm /home/ubuntu/.ssh/authorized_keys
+	# do NOT remove the authorized_keys file but just empty it
+	echo | sudo tee /home/ubuntu/.ssh/authorized_keys
 	if [ $? != 0 ]; then exit 4; fi
 
-	sudo rm /root/.ssh/authorized_keys
+    # do NOT remove the authorized_keys file but just empty it
+	echo | sudo tee /root/.ssh/authorized_keys
 	if [ $? != 0 ]; then exit 4; fi
 
 	echo "Image creation preparation finished."
