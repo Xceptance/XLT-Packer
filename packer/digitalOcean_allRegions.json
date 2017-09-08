@@ -1,115 +1,115 @@
 {
-	"variables": {
-		"xlt-version": "LATEST",
-		"image_name": "XLT-Image-{{timestamp}}",
-		"api_token": "<YOUR_DIGITAL_OCEAN_API_TOKEN>"
-	},
-	"builders": [
-		{
-			"name": "ams1",
-			"type": "digitalocean",
-			"api_token": "{{user `api_token`}}",
-			"image": "ubuntu-14-04-x64",
-			"region": "ams1",
-			"size": "512mb",
-			"snapshot_name": "{{user `image_name`}}"
-		},
-		{
-			"name": "ams2",
-			"type": "digitalocean",
-			"api_token": "{{user `api_token`}}",
-			"image": "ubuntu-14-04-x64",
-			"region": "ams2",
-			"size": "512mb",
-			"snapshot_name": "{{user `image_name`}}"
-		},
-		{
-			"name": "ams3",
-			"type": "digitalocean",
-			"api_token": "{{user `api_token`}}",
-			"image": "ubuntu-14-04-x64",
-			"region": "ams3",
-			"size": "512mb",
-			"snapshot_name": "{{user `image_name`}}"
-		},
-		{
-			"name": "fra1",
-			"type": "digitalocean",
-			"api_token": "{{user `api_token`}}",
-			"image": "ubuntu-14-04-x64",
-			"region": "fra1",
-			"size": "512mb",
-			"snapshot_name": "{{user `image_name`}}"
-		},
-		{
-			"name": "lon1",
-			"type": "digitalocean",
-			"api_token": "{{user `api_token`}}",
-			"image": "ubuntu-14-04-x64",
-			"region": "lon1",
-			"size": "512mb",
-			"snapshot_name": "{{user `image_name`}}"
-		},
-		{
-			"name": "nyc1",
-			"type": "digitalocean",
-			"api_token": "{{user `api_token`}}",
-			"image": "ubuntu-14-04-x64",
-			"region": "nyc1",
-			"size": "512mb",
-			"snapshot_name": "{{user `image_name`}}"
-		},
-		{
-			"name": "nyc2",
-			"type": "digitalocean",
-			"api_token": "{{user `api_token`}}",
-			"image": "ubuntu-14-04-x64",
-			"region": "nyc2",
-			"size": "512mb",
-			"snapshot_name": "{{user `image_name`}}"
-		},
-		{
-			"name": "nyc3",
-			"type": "digitalocean",
-			"api_token": "{{user `api_token`}}",
-			"image": "ubuntu-14-04-x64",
-			"region": "nyc3",
-			"size": "512mb",
-			"snapshot_name": "{{user `image_name`}}"
-		},
-		{
-			"name": "sfo1",
-			"type": "digitalocean",
-			"api_token": "{{user `api_token`}}",
-			"image": "ubuntu-14-04-x64",
-			"region": "sfo1",
-			"size": "512mb",
-			"snapshot_name": "{{user `image_name`}}"
-		},
-		{
-			"name": "sgp1",
-			"type": "digitalocean",
-			"api_token": "{{user `api_token`}}",
-			"image": "ubuntu-14-04-x64",
-			"region": "sgp1",
-			"size": "512mb",
-			"snapshot_name": "{{user `image_name`}}"
-		}
-	],
-	"provisioners": [
-		{
-			"type": "file",
-			"source": "./scripts/",
-			"destination": "~"
-		},
-		{
-			"type": "shell",
-			"inline": [
-				"sleep 30",
-				"sudo chmod +x ~/xlt-home/*.sh",
-				"sudo chmod +x ~/init.d/*",
-				"sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt-version`}}"
-			]
-		}
-	]
+  "variables": {
+    "xlt-version": "LATEST",
+    "image_name": "XLT-Image-{{timestamp}}",
+    "api_token": "<YOUR_DIGITAL_OCEAN_API_TOKEN>"
+  },
+  "builders": [
+    {
+      "name": "ams1",
+      "type": "digitalocean",
+      "api_token": "{{user `api_token`}}",
+      "image": "ubuntu-14-04-x64",
+      "region": "ams1",
+      "size": "512mb",
+      "snapshot_name": "{{user `image_name`}}"
+    },
+    {
+      "name": "ams2",
+      "type": "digitalocean",
+      "api_token": "{{user `api_token`}}",
+      "image": "ubuntu-14-04-x64",
+      "region": "ams2",
+      "size": "512mb",
+      "snapshot_name": "{{user `image_name`}}"
+    },
+    {
+      "name": "ams3",
+      "type": "digitalocean",
+      "api_token": "{{user `api_token`}}",
+      "image": "ubuntu-14-04-x64",
+      "region": "ams3",
+      "size": "512mb",
+      "snapshot_name": "{{user `image_name`}}"
+    },
+    {
+      "name": "fra1",
+      "type": "digitalocean",
+      "api_token": "{{user `api_token`}}",
+      "image": "ubuntu-14-04-x64",
+      "region": "fra1",
+      "size": "512mb",
+      "snapshot_name": "{{user `image_name`}}"
+    },
+    {
+      "name": "lon1",
+      "type": "digitalocean",
+      "api_token": "{{user `api_token`}}",
+      "image": "ubuntu-14-04-x64",
+      "region": "lon1",
+      "size": "512mb",
+      "snapshot_name": "{{user `image_name`}}"
+    },
+    {
+      "name": "nyc1",
+      "type": "digitalocean",
+      "api_token": "{{user `api_token`}}",
+      "image": "ubuntu-14-04-x64",
+      "region": "nyc1",
+      "size": "512mb",
+      "snapshot_name": "{{user `image_name`}}"
+    },
+    {
+      "name": "nyc2",
+      "type": "digitalocean",
+      "api_token": "{{user `api_token`}}",
+      "image": "ubuntu-14-04-x64",
+      "region": "nyc2",
+      "size": "512mb",
+      "snapshot_name": "{{user `image_name`}}"
+    },
+    {
+      "name": "nyc3",
+      "type": "digitalocean",
+      "api_token": "{{user `api_token`}}",
+      "image": "ubuntu-14-04-x64",
+      "region": "nyc3",
+      "size": "512mb",
+      "snapshot_name": "{{user `image_name`}}"
+    },
+    {
+      "name": "sfo1",
+      "type": "digitalocean",
+      "api_token": "{{user `api_token`}}",
+      "image": "ubuntu-14-04-x64",
+      "region": "sfo1",
+      "size": "512mb",
+      "snapshot_name": "{{user `image_name`}}"
+    },
+    {
+      "name": "sgp1",
+      "type": "digitalocean",
+      "api_token": "{{user `api_token`}}",
+      "image": "ubuntu-14-04-x64",
+      "region": "sgp1",
+      "size": "512mb",
+      "snapshot_name": "{{user `image_name`}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "./scripts/common/",
+      "destination": "~"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sleep 30",
+        "sudo chmod +x ~/xlt-home/*.sh",
+        "sudo chmod +x ~/init.d/*",
+        "sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt-version`}}"
+      ]
+    }
+  ]
 }

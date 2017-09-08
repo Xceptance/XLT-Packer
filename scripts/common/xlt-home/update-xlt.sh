@@ -11,6 +11,8 @@ XLT_WORKDIR=/mnt/xlt
 IMAGE_PREPARATION_SCRIPT_NAME=prepare-image-creation.sh
 XLT_STARTUP_FILE=$XLT_HOME/.xlt-starting
 
+TARGET_ARCHIVE=$XLT_HOME/$XLT_ZIP
+
 function help {
 	echo "update-xlt.sh [options] <xlt-archive>"
 	echo "example: update-xlt.sh https://lab.xceptance.de/releases/xlt/4.7.0/xlt-4.7.0.zip"
@@ -66,20 +68,22 @@ echo "get XLT from $SOURCE"
 if [[ $SOURCE == http://* ]] || [[ $SOURCE == https://* ]]; then
 	# load from URL
 	echo "download ..."
-	sudo curl -o $XLT_HOME/$XLT_ZIP -L $SOURCE
+	sudo curl -s -f -o $TARGET_ARCHIVE -L $SOURCE
 else
 	# is not a URL -> must be a file
 	if [ -r "$SOURCE" ] && [ -f "$SOURCE" ]; then
 		# get from file
-		sudo mv $SOURCE $XLT_HOME/$XLT_ZIP
-	else
-		echo "Given parameter is neither a URL nor points to an existing file."
-		exit 2;
+		sudo mv $SOURCE $TARGET_ARCHIVE
 	fi
 fi
 
+if [ ! -f "$TARGET_ARCHIVE" ]; then
+	echo "Given parameter '$SOURCE' is neither a valid URL nor points to an existing file."
+	exit 2;
+fi
+
 echo "set up rights"
-sudo chown xlt:xlt $XLT_HOME/$XLT_ZIP
+sudo chown xlt:xlt $TARGET_ARCHIVE
 
 
 if [ -f "$XLT_STARTUP_FILE" ]; then

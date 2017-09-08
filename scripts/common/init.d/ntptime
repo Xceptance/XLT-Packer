@@ -4,8 +4,8 @@
 
 ### BEGIN INIT INFO
 # Provides:          ntptime
-# Required-Start:    
-# Required-Stop:     
+# Required-Start:
+# Required-Stop:
 # Default-Start:     2 3 4 5
 # Default-Stop:
 # Short-Description: Adjust local time

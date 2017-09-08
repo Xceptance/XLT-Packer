@@ -1,38 +1,43 @@
 {
-	"variables": {
-		"region": "us-central1-a",
-		"account_file": "<PATH_TO_YOUR_ACCOUNT_JSON_FILE>",
-		"project": "xlt-image",
-		"xlt_version": "4.9.3",
-		"image_version": "4-9-3"
-	},
-	"builders": [
-		{
-			"type": "googlecompute",
-			"account_file": "{{user `account_file`}}",
-			"project_id": "{{user `project`}}",
-			"zone": "{{user `zone`}}",
-			"source_image_family": "ubuntu-1604-lts",
-			"image_name": "xlt-{{user `image_version`}}-{{isotime \"v20060102\"}}",
-			"image_family": "xlt-4-9-x",
-			"image_description": "Standard Ubuntu 16.04 LTS with XLT pre-installed.",
-			"ssh_username": "root"
-		}
-	],
-	"provisioners": [
-		{
-			"type": "file",
-			"source": "./scripts/",
-			"destination": "~"
-		},
-		{
-			"type": "shell",
-			"inline": [
-				"sleep 30",
-				"sudo chmod +x ~/xlt-home/*.sh",
-				"sudo chmod +x ~/init.d/*",
-				"sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt-version`}}"
-			]
-		}
-	]
+  "variables": {
+    "zone": "us-central1-a",
+    "account_file": "<PATH_TO_YOUR_ACCOUNT_JSON_FILE>",
+    "project": "xlt-image",
+    "xlt_version": "4.9.3",
+    "image_version": "4-9-3"
+  },
+  "builders": [
+    {
+      "type": "googlecompute",
+      "account_file": "{{user `account_file`}}",
+      "project_id": "{{user `project`}}",
+      "zone": "{{user `zone`}}",
+      "source_image_family": "ubuntu-1604-lts",
+      "image_name": "xlt-{{user `image_version`}}-{{isotime \"v20060102\"}}",
+      "image_family": "xlt-4-9-x",
+      "image_description": "Standard Ubuntu 16.04 LTS with XLT pre-installed.",
+      "ssh_username": "root"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "./scripts/common/",
+      "destination": "~"
+    },
+    {
+      "type": "file",
+      "source": "./scripts/google/",
+      "destination": "~"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sleep 30",
+        "sudo chmod +x ~/xlt-home/*.sh",
+        "sudo chmod +x ~/init.d/*",
+        "sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt-version`}}"
+      ]
+    }
+  ]
 }

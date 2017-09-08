@@ -16,7 +16,6 @@ XLT_WORKDIR=/mnt/xlt
 XLT_USER=xlt
 XLT_HOME=/home/$XLT_USER
 XLT_SCRIPT_NAME=start-xlt.sh
-IPv6_SCRIPT=ipv6.setup.sh
 
 # Read in system's default locale definition and export it.
 if [ -r /etc/default/locale ]; then

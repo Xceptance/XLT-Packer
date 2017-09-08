@@ -1,34 +1,34 @@
 {
-	"variables": {
-		"region": "nyc2",
-		"xlt-version": "LATEST",
-		"image_name": "XLT-Image-{{timestamp}}",
-		"api_token": "<YOUR_DIGITAL_OCEAN_API_TOKEN>"
-	},
-	"builders": [
-		{
-			"type": "digitalocean",
-			"api_token": "{{user `api_token`}}",
-			"image": "ubuntu-14-04-x64",
-			"region": "{{user `region`}}",
-			"size": "512mb",
-			"snapshot_name": "{{user `image_name`}}"
-		}
-	],
-	"provisioners": [
-		{
-			"type": "file",
-			"source": "./scripts/",
-			"destination": "~"
-		},
-		{
-			"type": "shell",
-			"inline": [
-				"sleep 30",
-				"sudo chmod +x ~/xlt-home/*.sh",
-				"sudo chmod +x ~/init.d/*",
-				"sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt-version`}}"
-			]
-		}
-	]
+  "variables": {
+    "region": "nyc2",
+    "xlt-version": "LATEST",
+    "image_name": "XLT-Image-{{timestamp}}",
+    "api_token": "<YOUR_DIGITAL_OCEAN_API_TOKEN>"
+  },
+  "builders": [
+    {
+      "type": "digitalocean",
+      "api_token": "{{user `api_token`}}",
+      "image": "ubuntu-14-04-x64",
+      "region": "{{user `region`}}",
+      "size": "512mb",
+      "snapshot_name": "{{user `image_name`}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "./scripts/common/",
+      "destination": "~"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sleep 30",
+        "sudo chmod +x ~/xlt-home/*.sh",
+        "sudo chmod +x ~/init.d/*",
+        "sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt-version`}}"
+      ]
+    }
+  ]
 }

@@ -82,9 +82,7 @@ mv xlt-* $TEMP
 
 # Cleaning install dir
 echo "Cleaning XLT agent template..."
-rm -rf $TEMP/doc
-rm -rf $TEMP/samples
-rm -rf $TEMP/tools
+rm -rf $TEMP/{doc,samples,tools}
 rm $TEMP/bin/*cmd
 
 

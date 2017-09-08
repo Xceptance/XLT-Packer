@@ -8,8 +8,6 @@ INIT_SCRIPT_DIR="$SCRIPT_DIR/../init.d"
 XLT_USER="xlt"
 XLT_HOME="/home/$XLT_USER"
 
-XLT_VERSION=$1
-
 IPv6_SCRIPT_NAME="ipv6tunnel"
 MOUNT_SCRIPT_NAME="mountdev"
 UPDATE_SCRIPT_NAME="update-xlt.sh"
@@ -18,6 +16,7 @@ USERDATA_START_SCRIPT_NAME="userdata"
 XLT_SERVICE_CONFIG="xlt.service"
 XLT_INITD_SCRIPT_NAME="xlt"
 XLT_START_SCRIPT_NAME="start-xlt.sh"
+XLT_VERSION=${1:-LATEST}
 NTP_START_SCRIPT="ntptime"
 
 FIREFOX_ESR_DOWNLOAD_URL="https://download.mozilla.org/?product=firefox-45.0.2esr&os=linux64"
@@ -50,11 +49,6 @@ checkInitFile $IPv6_SCRIPT_NAME;
 checkInitFile $USERDATA_START_SCRIPT_NAME;
 checkInitFile $XLT_INITD_SCRIPT_NAME;
 checkInitFile $NTP_START_SCRIPT;
-
-if [ -z $XLT_VERSION ]; then
-        echo "No XLT version set. Using Latest."
-        XLT_VERSION='LATEST'
-fi
 
 ## create XLT user
 echo "Create XLT user"
@@ -182,7 +176,7 @@ while true; do
 	read -p "Do you want to download and install the latest version of XLT? [Y/n] : " yn
 	case $yn in
 		''|[yY] )
-			sudo $XLT_HOME/$UPDATE_SCRIPT_NAME "https://lab.xceptance.de/nexus/service/local/artifact/maven/redirect?g=com.xceptance&a=xlt&r=public&p=zip&v=LATEST"
+			sudo $XLT_HOME/$UPDATE_SCRIPT_NAME "https://lab.xceptance.de/nexus/service/local/artifact/maven/redirect?g=com.xceptance&a=xlt&r=public&p=zip&v=${XLT_VERSION}"
 			break
 			;;
 		[nN] )

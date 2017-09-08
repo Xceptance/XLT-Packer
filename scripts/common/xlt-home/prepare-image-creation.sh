@@ -17,7 +17,7 @@ function prepareAmi {
 	echo | sudo tee /home/ubuntu/.ssh/authorized_keys
 	if [ $? != 0 ]; then exit 4; fi
 
-    # do NOT remove the authorized_keys file but just empty it
+	# do NOT remove the authorized_keys file but just empty it
 	echo | sudo tee /root/.ssh/authorized_keys
 	if [ $? != 0 ]; then exit 4; fi
 
@@ -29,7 +29,7 @@ FORCE=false
 
 # read options
 while [ "$1" != "" ]; do
-  case ${1} in
+	case ${1} in
 	-f)
 		FORCE=true
 		;;
@@ -41,8 +41,8 @@ while [ "$1" != "" ]; do
 		help
 		exit 1
 		;;
-  esac
-  shift
+	esac
+	shift
 done
 
 # get user confirmation if necessary
