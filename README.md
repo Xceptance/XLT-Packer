@@ -1,60 +1,81 @@
 # XLT-Packer
-Packer files to build cloud machine images for Xceptance LoadTest.
+Packer files to build cloud machine images for [Xceptance LoadTest](https://xceptance.com/xlt).
 
 Currently you can find scripts for the following cloud vendors:
  - DigitalOcean
  - Amazon EC2
  - Google Compute Engine
- 
+
 NOTE: Please note that this is not for cloud managing, but only for image creation.
- 
+
 ## Preparation
 
 The installation routines are based on packer.io, so you'll need to download it from [here](https://packer.io/downloads.html).
 
 ## Create an Image
 
-To create images you need to build the according .json file for your cloud vendor by calling packer. E.g. to create a new EC2 AMI, you would run:
+Now that you have installed packer, you can use it to build XLT images for any supported Cloud vendor listed above.
+To do so, invoke packer with the `build` command followed by the JSON file that corresponds to your cloud vendor.
 
-`$ <PATH_TO_PACKER>/packer build packer/amazon.json`
+For example, to create a new Amazon EC2 AMI, you would run:
+
+```sh
+  $ <PATH_TO_PACKER>/packer build packer/amazon.json
+```
 
 ## Configuration 
 
-Before you create an image, you need to provide some additional information, such as the authentication data for your vendor. You could either edit the respective json file (e.g. the packer/digitalOcean.json) and fill out the missing values or you provide the information on the commandline by passing `-var 'variable_name=value'`. 
+Before you create an image, you need to provide some additional information, such as the authentication data for your clould vendor.
 
-E.g. to pass XLT version 4.5.2 to your EC2 AMI and set the region to eu-central-1 you would run:
+This can be done in several ways:
 
-`$ <PATH_TO_PACKER>/packer build -var 'region=eu-central-1' -var 'xlt-version=4.5.2' packer/amazon.json`
+  1. Edit the respective json file (e.g. the packer/digitalOcean.json) and fill out the missing values.
+  1. Provide the missing information on the command line by invoking Packer with the `-var` flag: `-var 'variable_name=value'`.
+  3. Last but not least, you can also put all your variable definitions in a JSON file and pass it to Packer with the `-var-file` flag: `-var-file=myVars.json`
 
-You can also put all variables you need into a file, let's say variables.json:
+Lets take a look at the following sample: Imagine, you want to create an Amazon EC2 image running XLT _4.9.1_ for region _eu-central-1_ (all variables are in italics).
+This is done by invoking Packer as follows:
 
-`{
-  "aws_access_key": "foo",
-  "aws_secret_key": "bar"
-}`
+```sh
+  $ <PATH_TO_PACKER>/packer build -var 'region=eu-central-1' -var 'xlt-version=4.9.1' packer/amazon.json
+```
 
-This file could be passed to a build like this:
+You can also put all variables you need into a file, let's say _variables.json_:
 
-`$ packer build -var-file=variables.json packer/amazon.json`
- 
+```json
+  {
+    "region": "eu-central-1",
+    "xlt-version": "4.9.1"
+  }
+```
 
-### Amazon EC-2 Configuration
+This file could then be passed to Packer like this:
 
-To create a AWS EC-2 AMI you'll need to pass:
- - the region yo want to create the image
+```sh
+  $ packer build -var-file=variables.json packer/amazon.json
+```
+
+### Amazon EC2 Configuration
+
+To create an **A**mazon **M**achine **I**mage you'll need to pass:
+ - the region you want the image to be available in
  - the XLT version you want to use (default is: LATEST)
  - the name of the AMI (default is: XLT-Image-TIMESTAMP)
  - your AWS secret key
  - your AWS access key
- - the name of a ssh key-pair stored in your AWS account 
- - the path to the according private key file
- - the base AMI on which the XLT should be build
- 
-NOTE: The XLT images are based on Ubuntu 14.04 (trusty), so using another base OS (even another Ubuntu) may not work. We preconfigured AMIs for all regions in the `packer/amazon_allRegions.json` file. You can also find a list of base images [here](https://cloud-images.ubuntu.com/locator/ec2/).
- 
-Please be reminded, that the AMI names need to apply to naming rules: AMI names must be between 3 and 128 characters long, and may contain letters, numbers, '(', ')', '.', '-', '/' and '_'
+ - the name of a ssh key-pair stored in your AWS account
+ - the path to the corresponding private key file
+ - the base image on which the new XLT image should be build
 
-Also note, that you need to allow your instances to use port 8500 to connect to the agent controllers. You can do this by adding an adapted security group when launching an instance.
+NOTE: The XLT images are based on Ubuntu 16.04 (xenial), so using another base OS (even another Ubuntu) may not work. We preconfigured AMIs for all regions in the `packer/amazon_allRegions.json` file. You can also find a list of base images [here](https://cloud-images.ubuntu.com/locator/ec2/).
+
+Please be reminded that AMI names must obey the following rules:
+ - at least 3 characters
+ - at most 128 characters
+ - only letters, numbers, '(', ')', '.', '-', '/' and '_' are allowed
+
+Also note, that you need to allow incoming network traffic on TCP port *8500* for all of your instances so that you can connect to the agent controllers.
+You can do this by adding an appropriate security group when launching the instance(s).
 
 ### DigitalOcean Configuration
 
@@ -70,23 +91,30 @@ To create a GCE image you'll need to pass:
  - the region you want to create the image
  - the XLT version you want to use (default is: LATEST)
  - the name of the image (default is: xlt-image-TIMESTAMP)
- - your google compute account file (How to get this see [here](https://www.packer.io/docs/builders/googlecompute.html))
- - your google project ID
- 
-Please be reminded, that the image names need to apply to naming rules: must start with an lower case letter, and only have hyphens, numbers and lower letters. In other words it must be a match of regex `(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)`
+ - your Google Compute account file (How to get this see [here](https://www.packer.io/docs/builders/googlecompute.html))
+ - your Google project ID
 
-Also note, that you need to allow your instances to use port 8500 to connect to the agent controllers. You can do this by adding a firewall rule to a network at your network settings at: `https://console.developers.google.com/project/<YOUR_PROJECT>/networks/list`
- 
+Please be reminded that the image names must obey the following rules:
+ - must start with a lower-case letter
+ - only numbers, lower-case letters and '-' are allowed.
+
+Also note, that you need to allow incoming network traffic on TCP port *8500* for all of your instances so that you can connect to the agent controllers.
+You can do this by adding an appropriate firewall rule in your network settings at: `https://console.developers.google.com/project/<YOUR_PROJECT>/networks/list`
+
 ### All Region Files
 
-Packer allows parallel image creation, which give a significant speedup if you need to create more than one image. So if you need to create images in multiple regions use the `_allRegions.json` files.
+Packer allows parallel image creation which give a significant speedup if you need to create more than one image. So, if you need to create images in multiple regions use the `_allRegions.json` files.
 
-You can also use a subset of the provided regions by whitelisting or excluding some regions:
+You can also use a subset of the provided regions by whitelisting
 
-`$ <PATH_TO_PACKER>/packer build -except=us-east-1 packer/amazon_allRegions.json`
+```sh
+  $ <PATH_TO_PACKER>/packer build -only=us-east-1,us-west-1 packer/amazon_allRegions.json
+```
 
-or
+or excluding one or more regions:
 
-`$ <PATH_TO_PACKER>/packer build -only=us-east-1,us-west-1 packer/amazon_allRegions.json`
+```sh
+$ <PATH_TO_PACKER>/packer build -except=us-east-1 packer/amazon_allRegions.json
+```
 
 Of course you also need to pass the vendor and region specific variables, which can be found on top of each `.json` file.
