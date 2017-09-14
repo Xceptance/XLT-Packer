@@ -1,7 +1,7 @@
 {
   "variables": {
     "region": "us-east-1",
-    "aws_base_ami": "ami-fb35f390",
+    "aws_base_ami": "ami-c64f6dbd",
     "xlt_version": "LATEST",
     "image_name": "XLT-Image-{{timestamp}}",
     "aws_access_key": "<YOUR_AWS_ACCESS_KEY>",
