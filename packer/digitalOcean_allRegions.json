@@ -34,6 +34,11 @@
       "destination": "~"
     },
     {
+      "type": "file",
+      "source": "./scripts/digitalOcean/",
+      "destination": "~"
+    },
+    {
       "type": "shell",
       "inline": [
         "sleep 30",

@@ -12,11 +12,12 @@
 # Description:       Apply userdata to /etc/hosts
 ### END INIT INFO
 
-### THIS IS JUST A SKELETON ###
-
+USERDATA_SCRIPT="/home/xlt/apply-userdata.sh"
 USERDATA_BEGIN_FLAG="# User data entries START"
 USERDATA_END_FLAG="# User data entries END"
 HOSTS_FILE="/etc/hosts"
+USERDATA_URL="http://169.254.169.254/metadata/v1/user-data"
+PASSWORD_FILE="/home/xlt/.acpass"
 
 function cleanup {
 	SED="sed -i '/$USERDATA_BEGIN_FLAG/,/$USERDATA_END_FLAG/ { d }' $HOSTS_FILE"
@@ -27,10 +28,26 @@ function cleanup {
 case "$1" in
 	start)
 		# get the user data
-		# TODO: Implement me
-		HOST_MAPPING=""
+		USERDATA=`curl -s -f $USERDATA_URL 2>&1`
+		HOST_MAPPING=$USERDATA
 
-		# clean the old data first
+		VALID=`echo $USERDATA | jq '.'`
+		if [ '$VALID'!='' ]; then
+				VALID_HOST_MAPPING=`echo $USERDATA | jq '.hostData' -r`
+				if [ '$VALID_HOST_MAPPING'!='' ]; then
+					HOST_MAPPING=$VALID_HOST_MAPPING
+				fi
+
+				PASSWORD=`echo $USERDATA | jq '.acPassword' -r`
+				if [ '$PASSWORD'!='' ]; then
+					sudo echo $PASSWORD > $PASSWORD_FILE
+				else
+					if [ -f $PASSWORD_FILE ]; then
+						sudo rm -f $PASSWORD_FILE
+					fi
+				fi
+		fi
+
 		echo "Remove old user data"
 		cleanup
 
