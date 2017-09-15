@@ -1,0 +1,51 @@
+#! /bin/bash
+# /etc/init.d/userdata
+#
+
+### BEGIN INIT INFO
+# Provides:          userdata
+# Required-Start:
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Apply userdata to /etc/hosts
+# Description:       Apply userdata to /etc/hosts
+### END INIT INFO
+
+### THIS IS JUST A SKELETON ###
+
+USERDATA_BEGIN_FLAG="# User data entries START"
+USERDATA_END_FLAG="# User data entries END"
+HOSTS_FILE="/etc/hosts"
+
+function cleanup {
+	SED="sed -i '/$USERDATA_BEGIN_FLAG/,/$USERDATA_END_FLAG/ { d }' $HOSTS_FILE"
+	eval $SED
+}
+
+# Carry out specific functions when asked to by the system
+case "$1" in
+	start)
+		# get the user data
+		# TODO: Implement me
+		HOST_MAPPING=""
+
+		# clean the old data first
+		echo "Remove old user data"
+		cleanup
+
+		echo "Apply user data"
+		sudo echo "$USERDATA_BEGIN_FLAG" >> $HOSTS_FILE
+		sudo echo -E "$HOST_MAPPING" >> $HOSTS_FILE
+		sudo echo "$USERDATA_END_FLAG" >> $HOSTS_FILE
+		;;
+	stop)
+		cleanup
+		;;
+	*)
+		echo "Usage: $0 {start|stop}"
+		exit 0
+		;;
+esac
+
+exit 0

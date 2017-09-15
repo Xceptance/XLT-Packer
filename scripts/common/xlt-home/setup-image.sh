@@ -45,14 +45,13 @@ checkFile $UPDATE_SCRIPT_NAME;
 checkFile $IMAGE_PREPARATION_SCRIPT_NAME;
 checkFile $XLT_START_SCRIPT_NAME;
 
-checkInitFile $IPv6_SCRIPT_NAME;
 checkInitFile $USERDATA_START_SCRIPT_NAME;
 checkInitFile $XLT_INITD_SCRIPT_NAME;
 checkInitFile $NTP_START_SCRIPT;
 
 ## create XLT user
 echo "Create XLT user"
-sudo adduser $XLT_USER
+sudo adduser --disabled-login --disabled-password $XLT_USER
 
 
 ## update system
@@ -61,26 +60,26 @@ echo "Update system"
 sudo add-apt-repository -y ppa:webupd8team/java
 # update available packages
 sudo apt-get update
-sudo apt-get -y upgrade
+DEBIAN_FRONTEND=noninteractive sudo -E apt-get -y upgrade
 # install required progs: unzip, firefox, Xvfb etc.
-sudo apt-get --no-install-recommends -y install \
-  wget \
-  curl \
-  unzip \
-  tar \
-  xvfb \
-  dos2unix \
-  software-properties-common \
-  firefox \
-  ipv6calc \
-  chromium-browser \
-  chromium-chromedriver \
-  dbus-x11 \
-  jq
+DEBIAN_FRONTEND=noninteractive sudo -E apt-get --no-install-recommends -y install \
+	wget \
+	curl \
+	unzip \
+	tar \
+	xvfb \
+	dos2unix \
+	software-properties-common \
+	firefox \
+	ipv6calc \
+	chromium-browser \
+	chromium-chromedriver \
+	dbus-x11 \
+	jq
 
 # install Java and automatically accept Java license
 echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-sudo apt-get install -y oracle-java8-installer oracle-java8-set-default
+DEBIAN_FRONTEND=noninteractive sudo -E apt-get install -y oracle-java8-installer oracle-java8-set-default
 
 
 # Download Firefox ESR and put it into path
@@ -136,22 +135,26 @@ sudo cp $INIT_SCRIPT_DIR/$XLT_INITD_SCRIPT_NAME /etc/init.d/
 sudo chmod 755 /etc/init.d/$XLT_INITD_SCRIPT_NAME
 if [ -d /etc/systemd ]; then
 	# Remove "old" userdata.service - we have XLT service now!
-	sudo systemctl disable userdata.service
-	sudo rm /etc/systemd/system/userdata.service
+	if [ -f /etc/systemd/system/userdata.service ]; then
+		sudo systemctl disable userdata.service
+		sudo rm /etc/systemd/system/userdata.service
+	fi
 
 	sudo cp $INIT_SCRIPT_DIR/$XLT_SERVICE_CONFIG /etc/systemd/system/
 	sudo systemctl daemon-reload
 	sudo systemctl enable $XLT_SERVICE_CONFIG
+
 else
 	sudo update-rc.d $XLT_INITD_SCRIPT_NAME defaults
 fi
 
 # set IPv6 script
-echo "Install IPv6 script"
-sudo cp $INIT_SCRIPT_DIR/$IPv6_SCRIPT_NAME /etc/init.d/
-sudo chmod 755 /etc/init.d/$IPv6_SCRIPT_NAME
-sudo update-rc.d $IPv6_SCRIPT_NAME defaults
-
+if [ -e $INIT_SCRIPT_DIR/$IPv6_SCRIPT_NAME ]; then
+	echo "Install IPv6 script"
+	sudo cp $INIT_SCRIPT_DIR/$IPv6_SCRIPT_NAME /etc/init.d/
+	sudo chmod 755 /etc/init.d/$IPv6_SCRIPT_NAME
+	sudo update-rc.d $IPv6_SCRIPT_NAME defaults
+fi
 
 
 ## tune the file system
