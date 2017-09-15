@@ -101,7 +101,7 @@ As for Amazon EC2, we also use Ubuntu 16.04 LTS as base image here. And, in case
 
 ### Google Compute Engine Configuration ##
 
-To create a **G**oogle **C**ompute **E**ngine image you'll need to addionally pass:
+To create a **G**oogle **C**ompute **E**ngine image you'll need to pass:
  - the zone you want the new image to be built in
  - the XLT version that should run in your new image (defaults to _LATEST_)
  - the name of the new image (defaults to _xlt-&lt;XLT_VERSION&gt;-&lt;YYMMDD&gt;_)
