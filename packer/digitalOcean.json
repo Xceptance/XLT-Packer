@@ -1,18 +1,21 @@
 {
   "variables": {
-    "region": "nyc2",
+    "region": "nyc1",
     "xlt-version": "LATEST",
     "image_name": "XLT-Image-{{timestamp}}",
-    "api_token": "<YOUR_DIGITAL_OCEAN_API_TOKEN>"
+    "api_token": "<YOUR_DIGITAL_OCEAN_API_TOKEN>",
+    "ssh_private_key": "<PATH_TO_YOUR_PRIVATE_KEY>"
   },
   "builders": [
     {
       "type": "digitalocean",
+      "ssh_username": "root",
       "api_token": "{{user `api_token`}}",
-      "image": "ubuntu-14-04-x64",
+      "image": "ubuntu-16-04-x64",
       "region": "{{user `region`}}",
       "size": "512mb",
-      "snapshot_name": "{{user `image_name`}}"
+      "snapshot_name": "{{user `image_name`}}",
+      "snapshot_regions": ["nyc1"]
     }
   ],
   "provisioners": [
