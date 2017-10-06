@@ -1,7 +1,7 @@
 {
   "variables": {
     "region": "nyc1",
-    "xlt-version": "LATEST",
+    "xlt_version": "LATEST",
     "image_name": "XLT-Image-{{timestamp}}",
     "api_token": "<YOUR_DIGITAL_OCEAN_API_TOKEN>"
   },
@@ -34,7 +34,7 @@
         "sleep 30",
         "sudo chmod +x ~/xlt-home/*.sh",
         "sudo chmod +x ~/init.d/*",
-        "sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt-version`}}"
+        "sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt_version`}}"
       ]
     }
   ]

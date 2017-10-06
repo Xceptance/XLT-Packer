@@ -38,7 +38,7 @@ Lets take a look at the following sample: Imagine, you want to create an Amazon 
 This is done by invoking Packer as follows:
 
 ```sh
-  $ <PATH_TO_PACKER>/packer build -var 'region=eu-central-1' -var 'xlt-version=4.9.1' packer/amazon.json
+  $ <PATH_TO_PACKER>/packer build -var 'region=eu-central-1' -var 'xlt_version=4.9.1' packer/amazon.json
 ```
 
 You can also put all variables you need into a file, let's say _variables.json_:
@@ -46,7 +46,7 @@ You can also put all variables you need into a file, let's say _variables.json_:
 ```json
   {
     "region": "eu-central-1",
-    "xlt-version": "4.9.1"
+    "xlt_version": "4.9.1"
   }
 ```
 
