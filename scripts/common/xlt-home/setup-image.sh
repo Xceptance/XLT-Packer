@@ -19,10 +19,13 @@ XLT_START_SCRIPT_NAME="start-xlt.sh"
 XLT_VERSION=${1:-LATEST}
 NTP_START_SCRIPT="ntptime"
 
-FIREFOX_ESR_DOWNLOAD_URL="https://download.mozilla.org/?product=firefox-45.0.2esr&os=linux64"
-FIREFOX_ESR_CHECKSUM="3df50fb2290244dba849b3655d14a816107625a2"
-GECKODRIVER_VERSION="v0.17.0"
+FIREFOX_ESR_VERSION="52.5.2esr"
+FIREFOX_ESR_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_ESR_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_ESR_VERSION}.tar.bz2"
+FIREFOX_ESR_CHECKSUM="f10d561c06c7d12e8e7ccc991b1c48563e1c92661717e19d86ddee2527fcb1a8"
+GECKODRIVER_VERSION="v0.19.1"
 GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz"
+CHROMEDRIVER_VERSION="2.34"
+CHROMEDRIVER_DOWNLOAD_URL="https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
 
 ## check referenced files existance
 function checkFile {
@@ -63,28 +66,32 @@ sudo apt-get update
 DEBIAN_FRONTEND=noninteractive sudo -E apt-get -y upgrade
 # install required progs: unzip, firefox, Xvfb etc.
 DEBIAN_FRONTEND=noninteractive sudo -E apt-get --no-install-recommends -y install \
-	wget \
-	curl \
-	unzip \
-	tar \
-	xvfb \
-	dos2unix \
-	software-properties-common \
-	firefox \
-	ipv6calc \
-	chromium-browser \
-	chromium-chromedriver \
-	dbus-x11 \
-	jq
+  wget \
+  curl \
+  unzip \
+  tar \
+  xvfb \
+  dos2unix \
+  software-properties-common \
+  firefox \
+  ipv6calc \
+  chromium-browser \
+  libgconf-2-4 \
+  dbus-x11 \
+  git \
+  jq
 
 # install Java and automatically accept Java license
 echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
 DEBIAN_FRONTEND=noninteractive sudo -E apt-get install -y oracle-java8-installer oracle-java8-set-default
 
+# install Maven (Maven needs Java, so install it in the correct order)
+DEBIAN_FRONTEND=noninteractive sudo -E apt-get --no-install-recommends -y install maven
+
 
 # Download Firefox ESR and put it into path
 curl -L $FIREFOX_ESR_DOWNLOAD_URL -o /tmp/firefox.tar.bz2
-echo "$FIREFOX_ESR_CHECKSUM /tmp/firefox.tar.bz2" | sha1sum -c -
+echo "$FIREFOX_ESR_CHECKSUM /tmp/firefox.tar.bz2" | sha256sum -c -
 sudo tar -xj -C /tmp -f /tmp/firefox.tar.bz2
 sudo mv /tmp/firefox /usr/lib/firefox-esr
 sudo ln -s /usr/lib/firefox-esr/firefox /usr/bin/firefox-esr
@@ -95,6 +102,16 @@ curl -L $GECKODRIVER_DOWNLOAD_URL -o /tmp/geckodriver-linux64.tgz
 sudo tar -xz -C /usr/bin -f /tmp/geckodriver-linux64.tgz
 sudo chown root:root /usr/bin/geckodriver
 sudo chmod 755 /usr/bin/geckodriver
+
+# Download chromedriver from Google and put it into path
+curl -L $CHROMEDRIVER_DOWNLOAD_URL -o /tmp/chromedriver_linux64.zip
+sudo unzip -d /usr/bin /tmp/chromedriver_linux64.zip
+sudo chown root:root /usr/bin/chromedriver
+sudo chmod 755 /usr/bin/chromedriver
+rm /tmp/chromedriver_linux64.zip
+
+## Clean up
+sudo apt-get clean && rm -rf /var/lib/lists/*
 
 ## move scripts to their destination folder and setup permissions
 
