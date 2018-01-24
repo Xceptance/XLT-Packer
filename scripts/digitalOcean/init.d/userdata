@@ -32,14 +32,14 @@ case "$1" in
 		HOST_MAPPING=$USERDATA
 
 		VALID=`echo $USERDATA | jq '.'`
-		if [ '$VALID'!='' ]; then
+		if [ -n "$VALID" ]; then
 				VALID_HOST_MAPPING=`echo $USERDATA | jq '.hostData' -r`
-				if [ '$VALID_HOST_MAPPING'!='' ]; then
+				if [ -n "$VALID_HOST_MAPPING" ]; then
 					HOST_MAPPING=$VALID_HOST_MAPPING
 				fi
 
 				PASSWORD=`echo $USERDATA | jq '.acPassword' -r`
-				if [ '$PASSWORD'!='' ]; then
+				if [ -n "$PASSWORD" ]; then
 					sudo echo $PASSWORD > $PASSWORD_FILE
 				else
 					if [ -f $PASSWORD_FILE ]; then

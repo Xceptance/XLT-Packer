@@ -36,7 +36,7 @@ case "$1" in
 		PASSWORD=`get_meta acPassword`
 		echo "PASSWORD: $PASSWORD"
 
-		if [ '$PASSWORD'!='' ]; then
+		if [ -n "$PASSWORD" ]; then
 			sudo echo $PASSWORD > $PASSWORD_FILE
 		else
 			if [ -f $PASSWORD_FILE ]; then
@@ -48,7 +48,7 @@ case "$1" in
 		cleanup
 
 		echo "Apply host data"
-		if [ '$HOST_MAPPING'!='' ]; then
+		if [ -n "$HOST_MAPPING" ]; then
 			sudo echo "$USERDATA_BEGIN_FLAG" >> $HOSTS_FILE
 			sudo echo -E "$HOST_MAPPING" >> $HOSTS_FILE
 			sudo echo "$USERDATA_END_FLAG" >> $HOSTS_FILE
