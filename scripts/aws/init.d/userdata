@@ -12,7 +12,6 @@
 # Description:       Apply userdata to /etc/hosts
 ### END INIT INFO
 
-USERDATA_SCRIPT="/home/xlt/apply-userdata.sh"
 USERDATA_BEGIN_FLAG="# User data entries START"
 USERDATA_END_FLAG="# User data entries END"
 HOSTS_FILE="/etc/hosts"
