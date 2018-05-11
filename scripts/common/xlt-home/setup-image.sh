@@ -19,12 +19,12 @@ XLT_START_SCRIPT_NAME="start-xlt.sh"
 XLT_VERSION=${1:-LATEST}
 NTP_START_SCRIPT="ntptime"
 
-FIREFOX_ESR_VERSION="52.6.0esr"
+FIREFOX_ESR_VERSION="52.8.0esr"
 FIREFOX_ESR_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_ESR_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_ESR_VERSION}.tar.bz2"
-FIREFOX_ESR_CHECKSUM="11db6568646454100fdff9bf03a906af09f4fb1aaf755064bfc093e88a4aee3b"
-GECKODRIVER_VERSION="v0.19.1"
+FIREFOX_ESR_CHECKSUM="107f5dd1c257f59a3890e64242d37051b919f49feeda3048ed5a1cb2791515f6"
+GECKODRIVER_VERSION="v0.20.1"
 GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz"
-CHROMEDRIVER_VERSION="2.35"
+CHROMEDRIVER_VERSION="2.38"
 CHROMEDRIVER_DOWNLOAD_URL="https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
 
 ## check referenced files existance
