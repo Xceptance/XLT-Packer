@@ -3,8 +3,8 @@
     "zone": "us-central1-a",
     "account_file": "<PATH_TO_YOUR_ACCOUNT_JSON_FILE>",
     "project": "xlt-image",
-    "xlt_version": "4.10.4",
-    "image_version": "4-10-4"
+    "xlt_version": "4.11.0",
+    "image_version": "4-11-0"
   },
   "builders": [
     {
@@ -14,7 +14,7 @@
       "zone": "{{user `zone`}}",
       "source_image_family": "ubuntu-1604-lts",
       "image_name": "xlt-{{user `image_version`}}-{{isotime \"v20060102\"}}",
-      "image_family": "xlt-4-10-x",
+      "image_family": "xlt-4-11-x",
       "image_description": "Standard Ubuntu 16.04 LTS with XLT pre-installed.",
       "ssh_username": "root"
     }
