@@ -3,8 +3,8 @@
     "zone": "us-central1-a",
     "account_file": "<PATH_TO_YOUR_ACCOUNT_JSON_FILE>",
     "project": "xlt-image",
-    "xlt_version": "4.11.0",
-    "image_version": "4-11-0"
+    "xlt_version": "4.11.1",
+    "image_version": "4-11-1"
   },
   "builders": [
     {
