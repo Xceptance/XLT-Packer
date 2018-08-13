@@ -93,6 +93,7 @@ DEBIAN_FRONTEND=noninteractive sudo -E apt-get --no-install-recommends -y instal
 curl -L $FIREFOX_ESR_DOWNLOAD_URL -o /tmp/firefox.tar.bz2
 echo "$FIREFOX_ESR_CHECKSUM /tmp/firefox.tar.bz2" | sha256sum -c -
 sudo tar -xj -C /tmp -f /tmp/firefox.tar.bz2
+[ -d /usr/lib/firefox-esr ] && sudo rm -rf /usr/lib/firefox-esr
 sudo mv /tmp/firefox /usr/lib/firefox-esr
 sudo ln -s /usr/lib/firefox-esr/firefox /usr/bin/firefox-esr
 rm /tmp/firefox.tar.bz2
