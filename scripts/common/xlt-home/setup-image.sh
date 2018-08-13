@@ -29,19 +29,19 @@ CHROMEDRIVER_DOWNLOAD_URL="https://chromedriver.storage.googleapis.com/${CHROMED
 
 ## check referenced files existance
 function checkFile {
-	local FILE="$SCRIPT_DIR/$1"
-	if [ ! -e $FILE ]; then
-		echo "Can not find $FILE"
-		exit 1
-	fi
+  local FILE="$SCRIPT_DIR/$1"
+  if [ ! -e $FILE ]; then
+    echo "Can not find $FILE"
+    exit 1
+  fi
 }
 
 function checkInitFile {
-	local FILE="$INIT_SCRIPT_DIR/$1"
-	if [ ! -e $FILE ]; then
-		echo "Cannot find $FILE"
-		exit 1
-	fi
+  local FILE="$INIT_SCRIPT_DIR/$1"
+  if [ ! -e $FILE ]; then
+    echo "Cannot find $FILE"
+    exit 1
+  fi
 }
 
 checkFile $UPDATE_SCRIPT_NAME;
@@ -151,38 +151,45 @@ sudo update-rc.d $XLT_INITD_SCRIPT_NAME remove
 sudo cp $INIT_SCRIPT_DIR/$XLT_INITD_SCRIPT_NAME /etc/init.d/
 sudo chmod 755 /etc/init.d/$XLT_INITD_SCRIPT_NAME
 if [ -d /etc/systemd ]; then
-	# Remove "old" userdata.service - we have XLT service now!
-	if [ -f /etc/systemd/system/userdata.service ]; then
-		sudo systemctl disable userdata.service
-		sudo rm /etc/systemd/system/userdata.service
-	fi
+  # Remove "old" userdata.service - we have XLT service now!
+  if [ -f /etc/systemd/system/userdata.service ]; then
+    sudo systemctl disable userdata.service
+    sudo rm /etc/systemd/system/userdata.service
+  fi
 
-	sudo cp $INIT_SCRIPT_DIR/$XLT_SERVICE_CONFIG /etc/systemd/system/
-	sudo systemctl daemon-reload
-	sudo systemctl enable $XLT_SERVICE_CONFIG
+  sudo cp $INIT_SCRIPT_DIR/$XLT_SERVICE_CONFIG /etc/systemd/system/
+  sudo systemctl daemon-reload
+  sudo systemctl enable $XLT_SERVICE_CONFIG
 
 else
-	sudo update-rc.d $XLT_INITD_SCRIPT_NAME defaults
+  sudo update-rc.d $XLT_INITD_SCRIPT_NAME defaults
 fi
 
 # set IPv6 script
 if [ -e $INIT_SCRIPT_DIR/$IPv6_SCRIPT_NAME ]; then
-	echo "Install IPv6 script"
-	sudo cp $INIT_SCRIPT_DIR/$IPv6_SCRIPT_NAME /etc/init.d/
-	sudo chmod 755 /etc/init.d/$IPv6_SCRIPT_NAME
-	sudo update-rc.d $IPv6_SCRIPT_NAME defaults
+  echo "Install IPv6 script"
+  sudo cp $INIT_SCRIPT_DIR/$IPv6_SCRIPT_NAME /etc/init.d/
+  sudo chmod 755 /etc/init.d/$IPv6_SCRIPT_NAME
+  sudo update-rc.d $IPv6_SCRIPT_NAME defaults
 fi
 
 
-## tune the file system
-echo "Tune file system"
+## tune system limits
+echo "Tune system limits"
 FOUND=$(grep '^\s*\*\s*soft\s*nofile' /etc/security/limits.conf)
 if [ ! $? -eq 0 ]; then
-	sudo bash -c 'echo "*       soft    nofile  128000" >> /etc/security/limits.conf'
+  echo "*       soft    nofile  128000" | sudo tee -a /etc/security/limits.conf >/dev/null
 fi
 FOUND=$(grep '^\s*\*\s*hard\s*nofile' /etc/security/limits.conf)
 if [ ! $? -eq 0 ]; then
-	sudo bash -c 'echo "*       hard    nofile  128000" >> /etc/security/limits.conf'
+  echo "*       hard    nofile  128000" | sudo tee -a /etc/security/limits.conf >/dev/null
+fi
+### ... same for SystemD
+if [ -f /etc/systemd/system.conf ]; then
+  FOUND=$(grep '^\s*DefaultLimitNOFILE=' /etc/systemd/system.conf)
+  if [ ! $? -eq 0 ]; then
+    echo "DefaultLimitNOFILE=128000" | sudo tee -a /etc/systemd/system.conf >/dev/null
+  fi
 fi
 
 
@@ -193,42 +200,42 @@ sudo sed -ri 's/^\s*PermitRootLogin\s*yes$/PermitRootLogin\ no/g' /etc/ssh/sshd_
 
 ## install XLT
 while true; do
-	read -p "Do you want to download and install the latest version of XLT? [Y/n] : " yn
-	case $yn in
-		''|[yY] )
-			sudo $XLT_HOME/$UPDATE_SCRIPT_NAME "https://lab.xceptance.de/nexus/service/local/artifact/maven/redirect?g=com.xceptance&a=xlt&r=public&p=zip&v=${XLT_VERSION}"
-			break
-			;;
-		[nN] )
-			echo "If you want to install XLT execute $XLT_HOME/$UPDATE_SCRIPT_NAME ."
-			echo "If you intent to create an AMI don't forget to call $XLT_HOME/$IMAGE_PREPARATION_SCRIPT_NAME ."
-			break
-			;;
-		* )
-			echo "Please answer 'y', 'Y', 'n', or 'N'. If nothing is entered the default answer is 'y'."
-			;;
-	esac
+  read -p "Do you want to download and install the latest version of XLT? [Y/n] : " yn
+  case $yn in
+    ''|[yY] )
+      sudo $XLT_HOME/$UPDATE_SCRIPT_NAME "https://lab.xceptance.de/nexus/service/local/artifact/maven/redirect?g=com.xceptance&a=xlt&r=public&p=zip&v=${XLT_VERSION}"
+      break
+      ;;
+    [nN] )
+      echo "If you want to install XLT execute $XLT_HOME/$UPDATE_SCRIPT_NAME ."
+      echo "If you intent to create an AMI don't forget to call $XLT_HOME/$IMAGE_PREPARATION_SCRIPT_NAME ."
+      break
+      ;;
+    * )
+      echo "Please answer 'y', 'Y', 'n', or 'N'. If nothing is entered the default answer is 'y'."
+      ;;
+  esac
 done
 
 
 ## clean up
 while true; do
-	read -p "Do you want to clean up setup files? [Y/n] : " yn
-	case $yn in
-		''|[yY] )
-			echo "Clean up setup files"
-			cd $HOME
-			sudo rm -rf $SCRIPT_DIR
-			sudo rm -rf $INIT_SCRIPT_DIR
-			break
-			;;
-		[nN] )
-			break
-			;;
-		* )
-			echo "Please answer 'y', 'Y', 'n', or 'N'. If nothing is entered the default answer is 'y'."
-			;;
-	esac
+  read -p "Do you want to clean up setup files? [Y/n] : " yn
+  case $yn in
+    ''|[yY] )
+      echo "Clean up setup files"
+      cd $HOME
+      sudo rm -rf $SCRIPT_DIR
+      sudo rm -rf $INIT_SCRIPT_DIR
+      break
+      ;;
+    [nN] )
+      break
+      ;;
+    * )
+      echo "Please answer 'y', 'Y', 'n', or 'N'. If nothing is entered the default answer is 'y'."
+      ;;
+  esac
 done
 
 echo "Setup finished."
