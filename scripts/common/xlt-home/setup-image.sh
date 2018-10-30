@@ -19,12 +19,12 @@ XLT_START_SCRIPT_NAME="start-xlt.sh"
 XLT_VERSION=${1:-LATEST}
 NTP_START_SCRIPT="ntptime"
 
-FIREFOX_ESR_VERSION="60.1.0esr"
+FIREFOX_ESR_VERSION="60.2.2esr"
 FIREFOX_ESR_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_ESR_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_ESR_VERSION}.tar.bz2"
-FIREFOX_ESR_CHECKSUM="5b1420be9136a3a0ea01d4d9253bb65ecea8114d809222c4c2786a7ab077fd57"
-GECKODRIVER_VERSION="v0.21.0"
+FIREFOX_ESR_CHECKSUM="71ac702c25e654c04ee61ddd5a394ae52e27886beeed7d575542e3fe7e8e4939"
+GECKODRIVER_VERSION="v0.23.0"
 GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz"
-CHROMEDRIVER_VERSION="2.40"
+CHROMEDRIVER_VERSION="2.43"
 CHROMEDRIVER_DOWNLOAD_URL="https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
 
 ## check referenced files existance
@@ -204,7 +204,7 @@ while true; do
   read -p "Do you want to download and install the latest version of XLT? [Y/n] : " yn
   case $yn in
     ''|[yY] )
-      sudo $XLT_HOME/$UPDATE_SCRIPT_NAME "https://lab.xceptance.de/nexus/service/local/artifact/maven/redirect?g=com.xceptance&a=xlt&r=public&p=zip&v=${XLT_VERSION}"
+      sudo $XLT_HOME/$UPDATE_SCRIPT_NAME "https://lab.xceptance.de/nexus/service/rest/v1/search/assets/download?group=com.xceptance&name=xlt&repository=public&maven.extension=zip&version=${XLT_VERSION}"
       break
       ;;
     [nN] )

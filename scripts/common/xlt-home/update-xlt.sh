@@ -15,8 +15,8 @@ TARGET_ARCHIVE=$XLT_HOME/$XLT_ZIP
 
 function help {
 	echo "update-xlt.sh [options] <xlt-archive>"
-	echo "example: update-xlt.sh https://lab.xceptance.de/releases/xlt/4.10.0/xlt-4.10.0.zip"
-	echo "example: update-xlt.sh -upgrade /home/foo/xlt-4.10.0.zip"
+	echo "example: update-xlt.sh https://lab.xceptance.de/releases/xlt/4.12.0/xlt-4.12.0.zip"
+	echo "example: update-xlt.sh -upgrade /home/foo/xlt-4.12.0.zip"
 	echo ""
 	echo "Options"
 	echo "  -u  --upgrade        Upgrade software packages to latest version"
