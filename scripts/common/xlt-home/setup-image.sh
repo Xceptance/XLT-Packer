@@ -19,12 +19,12 @@ XLT_START_SCRIPT_NAME="start-xlt.sh"
 XLT_VERSION=${1:-LATEST}
 NTP_START_SCRIPT="ntptime"
 
-FIREFOX_ESR_VERSION="60.2.2esr"
+FIREFOX_ESR_VERSION="60.4.0esr"
 FIREFOX_ESR_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_ESR_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_ESR_VERSION}.tar.bz2"
-FIREFOX_ESR_CHECKSUM="71ac702c25e654c04ee61ddd5a394ae52e27886beeed7d575542e3fe7e8e4939"
+FIREFOX_ESR_CHECKSUM="b88aba833a90376f99b97dc6406513bb5f0caa31ee81b3a15b56c3293590e822"
 GECKODRIVER_VERSION="v0.23.0"
 GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz"
-CHROMEDRIVER_VERSION="2.43"
+CHROMEDRIVER_VERSION="2.45"
 CHROMEDRIVER_DOWNLOAD_URL="https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
 
 ## check referenced files existance
@@ -59,8 +59,6 @@ sudo adduser --disabled-login --disabled-password $XLT_USER
 
 ## update system
 echo "Update system"
-# enable Oracle Java
-sudo add-apt-repository -y ppa:webupd8team/java
 # update available packages
 sudo apt-get update
 DEBIAN_FRONTEND=noninteractive sudo -E apt-get -y upgrade
@@ -81,9 +79,8 @@ DEBIAN_FRONTEND=noninteractive sudo -E apt-get --no-install-recommends -y instal
   git \
   jq
 
-# install Java and automatically accept Java license
-echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-DEBIAN_FRONTEND=noninteractive sudo -E apt-get install -y oracle-java8-installer oracle-java8-set-default
+# install OpenJDK8
+DEBIAN_FRONTEND=noninteractive sudo -E apt-get install -y openjdk-8-jdk
 
 # install Maven (Maven needs Java, so install it in the correct order)
 DEBIAN_FRONTEND=noninteractive sudo -E apt-get --no-install-recommends -y install maven
