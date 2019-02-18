@@ -176,11 +176,11 @@ fi
 echo "Tune system limits"
 FOUND=$(grep '^\s*\*\s*soft\s*nofile' /etc/security/limits.conf)
 if [ ! $? -eq 0 ]; then
-  echo "*       soft    nofile  128000" | sudo tee -a /etc/security/limits.conf >/dev/null
+  echo '*       soft    nofile  128000' | sudo tee -a /etc/security/limits.conf >/dev/null
 fi
 FOUND=$(grep '^\s*\*\s*hard\s*nofile' /etc/security/limits.conf)
 if [ ! $? -eq 0 ]; then
-  echo "*       hard    nofile  128000" | sudo tee -a /etc/security/limits.conf >/dev/null
+  echo '*       hard    nofile  128000' | sudo tee -a /etc/security/limits.conf >/dev/null
 fi
 ### ... same for SystemD
 if [ -f /etc/systemd/system.conf ]; then
@@ -195,45 +195,14 @@ fi
 echo "Secure login"
 sudo sed -ri 's/^\s*PermitRootLogin\s*yes$/PermitRootLogin\ no/g' /etc/ssh/sshd_config
 
-
-## install XLT
-while true; do
-  read -p "Do you want to download and install the latest version of XLT? [Y/n] : " yn
-  case $yn in
-    ''|[yY] )
-      sudo $XLT_HOME/$UPDATE_SCRIPT_NAME "https://lab.xceptance.de/nexus/service/rest/v1/search/assets/download?group=com.xceptance&name=xlt&repository=public&maven.extension=zip&version=${XLT_VERSION}"
-      break
-      ;;
-    [nN] )
-      echo "If you want to install XLT execute $XLT_HOME/$UPDATE_SCRIPT_NAME ."
-      echo "If you intent to create an AMI don't forget to call $XLT_HOME/$IMAGE_PREPARATION_SCRIPT_NAME ."
-      break
-      ;;
-    * )
-      echo "Please answer 'y', 'Y', 'n', or 'N'. If nothing is entered the default answer is 'y'."
-      ;;
-  esac
-done
-
+# install XLT
+echo "Installing XLT"
+sudo $XLT_HOME/$UPDATE_SCRIPT_NAME "https://lab.xceptance.de/nexus/service/rest/v1/search/assets/download?group=com.xceptance&name=xlt&repository=public&maven.extension=zip&version=${XLT_VERSION}"
 
 ## clean up
-while true; do
-  read -p "Do you want to clean up setup files? [Y/n] : " yn
-  case $yn in
-    ''|[yY] )
-      echo "Clean up setup files"
-      cd $HOME
-      sudo rm -rf $SCRIPT_DIR
-      sudo rm -rf $INIT_SCRIPT_DIR
-      break
-      ;;
-    [nN] )
-      break
-      ;;
-    * )
-      echo "Please answer 'y', 'Y', 'n', or 'N'. If nothing is entered the default answer is 'y'."
-      ;;
-  esac
-done
+echo "Clean up setup files"
+cd $HOME
+sudo rm -rf $SCRIPT_DIR
+sudo rm -rf $INIT_SCRIPT_DIR
 
 echo "Setup finished."
