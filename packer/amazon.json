@@ -2,8 +2,9 @@
   "variables": {
     "region": "eu-west-1",
     "aws_base_ami": "ami-0181f8d9b6f098ec4",
-    "xlt_version": "LATEST",
+    "xlt_version": "4.12.1",
     "image_name": "XLT-Image-{{timestamp}}",
+    "launch_permission" : "",
     "aws_access_key": "<YOUR_AWS_ACCESS_KEY>",
     "aws_secret_key": "<YOUR_AWS_SECRET_KEY>",
     "ssh_keypair_name": "<SSH_KEY_PAIR_NAME>",
@@ -19,6 +20,7 @@
       "instance_type": "t1.micro",
       "ssh_username": "ubuntu",
       "ami_name": "{{user `image_name`}}",
+      "ami_groups": "{{user `launch_permission`}}",
       "ssh_keypair_name": "{{user `ssh_keypair_name`}}",
       "ssh_private_key_file": "{{user `ssh_private_key_file`}}",
       "ena_support": true,
