@@ -19,12 +19,12 @@ XLT_START_SCRIPT_NAME="start-xlt.sh"
 XLT_VERSION=${1:-LATEST}
 NTP_START_SCRIPT="ntptime"
 
-FIREFOX_ESR_VERSION="60.4.0esr"
+FIREFOX_ESR_VERSION="60.5.1esr"
 FIREFOX_ESR_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_ESR_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_ESR_VERSION}.tar.bz2"
-FIREFOX_ESR_CHECKSUM="b88aba833a90376f99b97dc6406513bb5f0caa31ee81b3a15b56c3293590e822"
-GECKODRIVER_VERSION="v0.23.0"
+FIREFOX_ESR_CHECKSUM="2d8e6cb8c1211e58631f5cb2ff73bcd30a8a28c762c649fd40e9fd7e1a3570ce"
+GECKODRIVER_VERSION="v0.24.0"
 GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz"
-CHROMEDRIVER_VERSION="2.45"
+CHROMEDRIVER_VERSION="2.46"
 CHROMEDRIVER_DOWNLOAD_URL="https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
 
 ## check referenced files existance
@@ -88,7 +88,7 @@ DEBIAN_FRONTEND=noninteractive sudo -E apt-get --no-install-recommends -y instal
 
 # Download Firefox ESR and put it into path
 curl -L $FIREFOX_ESR_DOWNLOAD_URL -o /tmp/firefox.tar.bz2
-echo "$FIREFOX_ESR_CHECKSUM /tmp/firefox.tar.bz2" | sha256sum -c -
+echo "$FIREFOX_ESR_CHECKSUM /tmp/firefox.tar.bz2" | sha256sum -c --status - || exit 1
 sudo tar -xj -C /tmp -f /tmp/firefox.tar.bz2
 [ -d /usr/lib/firefox-esr ] && sudo rm -rf /usr/lib/firefox-esr
 sudo mv /tmp/firefox /usr/lib/firefox-esr
