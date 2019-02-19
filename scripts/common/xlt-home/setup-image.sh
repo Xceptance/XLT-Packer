@@ -27,6 +27,9 @@ GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/downlo
 CHROMEDRIVER_VERSION="2.46"
 CHROMEDRIVER_DOWNLOAD_URL="https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
 
+OPENJDK_DOWNLOAD_URL="https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz"
+OPENJDK_CHECKSUM="99be79935354f5c0df1ad293620ea36d13f48ec3ea870c838f20c504c9668b57"
+
 ## check referenced files existance
 function checkFile {
   local FILE="$SCRIPT_DIR/$1"
@@ -47,6 +50,7 @@ function checkInitFile {
 checkFile $UPDATE_SCRIPT_NAME;
 checkFile $IMAGE_PREPARATION_SCRIPT_NAME;
 checkFile $XLT_START_SCRIPT_NAME;
+checkFile openjdk-dummy_0.0.1_all.deb
 
 checkInitFile $USERDATA_START_SCRIPT_NAME;
 checkInitFile $XLT_INITD_SCRIPT_NAME;
@@ -79,8 +83,31 @@ DEBIAN_FRONTEND=noninteractive sudo -E apt-get --no-install-recommends -y instal
   git \
   jq
 
-# install OpenJDK8
-DEBIAN_FRONTEND=noninteractive sudo -E apt-get install -y openjdk-8-jdk
+# install OpenJDK11
+curl -Ls "$OPENJDK_DOWNLOAD_URL" -o /tmp/openjdk11.tgz
+echo "$OPENJDK_CHECKSUM /tmp/openjdk11.tgz" | sha256sum -c --status - || exit 1
+sudo mkdir -p /usr/lib/jvm
+sudo tar -C /usr/lib/jvm -xzf /tmp/openjdk11.tgz
+rm /tmp/openjdk11.tgz
+
+JAVA_HOME=/usr/lib/jvm/jdk-11.0.2
+sudo update-alternatives --install /usr/bin/java java $JAVA_HOME/bin/java 1099
+
+cat <<-EOF | sudo tee /etc/profile.d/jdk.sh > /dev/null
+export JAVA_HOME=$JAVA_HOME
+export PATH=\$PATH:\$JAVA_HOME/bin
+EOF
+sudo chmod +x /etc/profile.d/jdk.sh
+
+# Set default keystore type to JKS
+sudo sed -i -e 's/^\(keystore\.type\)=.*$/\1=JKS/' $JAVA_HOME/conf/security/java.security
+
+sudo dpkg -i $SCRIPT_DIR/openjdk-dummy_0.0.1_all.deb
+
+sudo apt-get install -y --no-install-recommends ca-certificates-java \
+  && sudo rm $JAVA_HOME/lib/security/cacerts \
+  && sudo ln -s /etc/ssl/certs/java/cacerts $JAVA_HOME/lib/security/
+
 
 # install Maven (Maven needs Java, so install it in the correct order)
 DEBIAN_FRONTEND=noninteractive sudo -E apt-get --no-install-recommends -y install maven
