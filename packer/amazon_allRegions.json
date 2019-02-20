@@ -2,7 +2,7 @@
   "variables": {
     "region": "eu-west-1",
     "aws_base_ami": "ami-0181f8d9b6f098ec4",
-    "xlt_version": "4.12.1",
+    "xlt_version": "4.12.2",
     "image_name": "XLT-Image-{{timestamp}}",
     "dest_regions": "ap-northeast-1,ap-southeast-1,ap-southeast-2,eu-central-1,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2",
     "launch_permission" : "",

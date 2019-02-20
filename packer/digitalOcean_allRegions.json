@@ -1,6 +1,6 @@
 {
   "variables": {
-    "xlt_version": "LATEST",
+    "xlt_version": "4.12.2",
     "image_name": "XLT-Image-{{timestamp}}",
     "api_token": "<YOUR_DIGITAL_OCEAN_API_TOKEN>"
   },
