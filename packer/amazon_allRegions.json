@@ -20,7 +20,7 @@
       "source_ami": "{{user `aws_base_ami`}}",
       "instance_type": "t1.micro",
       "ssh_username": "ubuntu",
-      "ami_name": "{{user `image_name`}}",
+      "ami_name": "{{user `image_name` | clean_ami_name}}",
       "ami_regions": "{{user `dest_regions`}}",
       "ami_groups": "{{user `launch_permission`}}",
       "ssh_keypair_name": "{{user `ssh_keypair_name`}}",
