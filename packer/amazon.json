@@ -31,7 +31,10 @@
           "device_name": "/dev/sda1",
           "volume_type": "gp2"
         }
-      ]
+      ],
+      "tags": {
+        "Name": "XLT {{user `xlt_version`}}"
+      }
     }
   ],
   "provisioners": [
