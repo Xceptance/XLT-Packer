@@ -7,16 +7,14 @@ INIT_SCRIPT_DIR="$SCRIPT_DIR/../init.d"
 
 XLT_USER="xlt"
 XLT_HOME="/home/$XLT_USER"
+XLT_WORKDIR="/mnt/$XLT_USER"
 
 IPv6_SCRIPT_NAME="ipv6tunnel"
 MOUNT_SCRIPT_NAME="mountdev"
-UPDATE_SCRIPT_NAME="update-xlt.sh"
-IMAGE_PREPARATION_SCRIPT_NAME="prepare-image-creation.sh"
 USERDATA_START_SCRIPT_NAME="userdata"
 XLT_SERVICE_CONFIG="xlt.service"
 XLT_INITD_SCRIPT_NAME="xlt"
 XLT_START_SCRIPT_NAME="start-xlt.sh"
-XLT_VERSION=${1:-LATEST}
 NTP_START_SCRIPT="ntptime"
 
 FIREFOX_ESR_VERSION="60.5.1esr"
@@ -47,8 +45,6 @@ function checkInitFile {
   fi
 }
 
-checkFile $UPDATE_SCRIPT_NAME;
-checkFile $IMAGE_PREPARATION_SCRIPT_NAME;
 checkFile $XLT_START_SCRIPT_NAME;
 checkFile openjdk-dummy_0.0.1_all.deb
 
@@ -82,6 +78,8 @@ DEBIAN_FRONTEND=noninteractive sudo -E apt-get --no-install-recommends -y instal
   dbus-x11 \
   git \
   jq
+
+DEBIAN_FRONTEND=noninteractive sudo -E apt-get -y purge snapd
 
 # install OpenJDK11
 curl -Ls "$OPENJDK_DOWNLOAD_URL" -o /tmp/openjdk11.tgz
@@ -134,23 +132,6 @@ sudo unzip -d /usr/bin /tmp/chromedriver_linux64.zip
 sudo chown root:root /usr/bin/chromedriver
 sudo chmod 755 /usr/bin/chromedriver
 rm /tmp/chromedriver_linux64.zip
-
-## Clean up
-sudo apt-get clean && rm -rf /var/lib/lists/*
-
-## move scripts to their destination folder and setup permissions
-
-# set update script
-echo "Install update script"
-sudo cp $SCRIPT_DIR/$UPDATE_SCRIPT_NAME $XLT_HOME
-sudo chmod 755 $XLT_HOME/$UPDATE_SCRIPT_NAME
-sudo chown xlt:xlt $XLT_HOME/$UPDATE_SCRIPT_NAME
-
-# set image preparation script
-echo "Install image preparation script"
-sudo cp $SCRIPT_DIR/$IMAGE_PREPARATION_SCRIPT_NAME $XLT_HOME
-sudo chmod 755 $XLT_HOME/$IMAGE_PREPARATION_SCRIPT_NAME
-sudo chown xlt:xlt $XLT_HOME/$IMAGE_PREPARATION_SCRIPT_NAME
 
 # setup XLT start script
 echo "Install XLT start script"
@@ -224,10 +205,77 @@ sudo sed -ri 's/^\s*PermitRootLogin\s*yes$/PermitRootLogin\ no/g' /etc/ssh/sshd_
 
 # install XLT
 echo "Installing XLT"
-sudo $XLT_HOME/$UPDATE_SCRIPT_NAME "https://lab.xceptance.de/nexus/service/rest/v1/search/assets/download?group=com.xceptance&name=xlt&repository=public&maven.extension=zip&version=${XLT_VERSION}"
+SOURCE=$1
+XLT_STARTUP_FILE="$XLT_HOME/.xlt-starting"
+TARGET_ARCHIVE="$XLT_HOME/xlt.zip"
+
+if [ ! -f $SOURCE ]; then
+  SOURCE="https://lab.xceptance.de/nexus/service/rest/v1/search/assets/download?group=com.xceptance&name=xlt&repository=public&maven.extension=zip&version=$SOURCE"
+fi
+
+if [[ $SOURCE == http://* ]] || [[ $SOURCE == https://* ]]; then
+  # load from URL
+  echo "download ..."
+  sudo curl -s -f -o $TARGET_ARCHIVE -L "$SOURCE"
+else
+  # is not a URL -> must be a file
+  if [ -r "$SOURCE" ] && [ -f "$SOURCE" ]; then
+    # get from file
+    sudo mv $SOURCE $TARGET_ARCHIVE
+  fi
+fi
+
+if [ ! -f "$TARGET_ARCHIVE" ]; then
+  echo "Given parameter '$SOURCE' is neither a valid URL nor points to an existing file."
+  exit 2;
+fi
+
+echo "set up rights"
+sudo chown xlt:xlt $TARGET_ARCHIVE
+
+
+if [ -f "$XLT_STARTUP_FILE" ]; then
+  echo "Seems like XLT startup did not finish yet.. will wait until it has"
+  while [ -f "$XLT_STARTUP_FILE" ]; do
+    sleep 5s;
+  done
+fi
+
+
+echo "stop old XLT"
+sudo /etc/init.d/xlt stop
+sleep 5s
+
+echo "purge old XLT version"
+sudo rm -rf $XLT_WORKDIR/*
+if [ $? != 0 ]; then
+  echo "Unable to purge XLT from $XLT_WORKDIR ."
+  exit 3;
+fi
+
+
+# prepare AMI creation
+echo "Remove SSH stuff ..."
+
+[ -d /etc/ssh ] && sudo rm /etc/ssh/ssh_host_*
+
+# do NOT remove the authorized_keys file but just empty it
+if [ -d /home/ubuntu/.ssh ]; then
+  echo | sudo tee /home/ubuntu/.ssh/authorized_keys
+  if [ $? != 0 ]; then exit 4; fi
+fi
+
+# do NOT remove the authorized_keys file but just empty it
+if [ -d /root/.ssh ]; then
+  echo | sudo tee /root/.ssh/authorized_keys
+  if [ $? != 0 ]; then exit 4; fi
+fi
+
 
 ## clean up
 echo "Clean up setup files"
+
+sudo apt-get -y clean && sudo apt-get -y autoremove && sudo rm -rf /var/lib/lists/*
 cd $HOME
 sudo rm -rf $SCRIPT_DIR
 sudo rm -rf $INIT_SCRIPT_DIR

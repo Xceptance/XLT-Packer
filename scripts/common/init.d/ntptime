@@ -14,14 +14,14 @@
 
 # Carry out specific functions when asked to by the system
 case "$1" in
-	start)
-		echo "Adjust local time"
-		ntpdate-debian
-		;;
-	*)
-		echo "Usage: $0 {start}"
-		exit 0
-		;;
+  start)
+    echo "Adjust local time"
+    ntpdate-debian
+    ;;
+  *)
+    echo "Usage: $0 {start}"
+    exit 0
+    ;;
 esac
 
 exit 0

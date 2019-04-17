@@ -19,50 +19,50 @@ USERDATA_URL="http://169.254.169.254/latest/user-data"
 PASSWORD_FILE="/home/xlt/.acpass"
 
 function cleanup {
-	SED="sed -i '/$USERDATA_BEGIN_FLAG/,/$USERDATA_END_FLAG/ { d }' $HOSTS_FILE"
-	eval $SED
+  SED="sed -i '/$USERDATA_BEGIN_FLAG/,/$USERDATA_END_FLAG/ { d }' $HOSTS_FILE"
+  eval $SED
 }
 
 # Carry out specific functions when asked to by the system
 case "$1" in
-	start)
-		# get the user data
-		USERDATA=`curl -s -f $USERDATA_URL 2>&1`
-		HOST_MAPPING=$USERDATA
+  start)
+    # get the user data
+    USERDATA=`curl -s -f $USERDATA_URL 2>&1`
+    HOST_MAPPING=$USERDATA
 
-		VALID=`echo $USERDATA | jq '.'`
-		echo $VALID
-		if [ -n "$VALID" ]; then
-				VALID_HOST_MAPPING=`echo $USERDATA | jq '.hostData' -r`
-				if [ -n "$VALID_HOST_MAPPING" ]; then
-					HOST_MAPPING=$VALID_HOST_MAPPING
-				fi
+    VALID=`echo $USERDATA | jq '.'`
+    echo $VALID
+    if [ -n "$VALID" ]; then
+        VALID_HOST_MAPPING=`echo $USERDATA | jq '.hostData' -r`
+        if [ -n "$VALID_HOST_MAPPING" ]; then
+          HOST_MAPPING=$VALID_HOST_MAPPING
+        fi
 
-				PASSWORD=`echo $USERDATA | jq '.acPassword' -r`
-				if [ -n "$PASSWORD" ]; then
-					sudo echo $PASSWORD > $PASSWORD_FILE
-				else
-					if [ -f $PASSWORD_FILE ]; then
-						sudo rm -f $PASSWORD_FILE
-					fi
-				fi
-		fi
+        PASSWORD=`echo $USERDATA | jq '.acPassword' -r`
+        if [ -n "$PASSWORD" ]; then
+          sudo echo $PASSWORD > $PASSWORD_FILE
+        else
+          if [ -f $PASSWORD_FILE ]; then
+            sudo rm -f $PASSWORD_FILE
+          fi
+        fi
+    fi
 
-		echo "Remove old user data"
-		cleanup
+    echo "Remove old user data"
+    cleanup
 
-		echo "Apply user data"
-		sudo echo "$USERDATA_BEGIN_FLAG" >> $HOSTS_FILE
-		sudo echo -E "$HOST_MAPPING" >> $HOSTS_FILE
-		sudo echo "$USERDATA_END_FLAG" >> $HOSTS_FILE
-		;;
-	stop)
-		cleanup
-		;;
-	*)
-		echo "Usage: $0 {start|stop}"
-		exit 0
-		;;
+    echo "Apply user data"
+    sudo echo "$USERDATA_BEGIN_FLAG" >> $HOSTS_FILE
+    sudo echo -E "$HOST_MAPPING" >> $HOSTS_FILE
+    sudo echo "$USERDATA_END_FLAG" >> $HOSTS_FILE
+    ;;
+  stop)
+    cleanup
+    ;;
+  *)
+    echo "Usage: $0 {start|stop}"
+    exit 0
+    ;;
 esac
 
 exit 0

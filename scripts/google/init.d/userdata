@@ -19,48 +19,48 @@ METADATA_SERVER_URL="http://metadata.google.internal/computeMetadata/v1"
 PASSWORD_FILE="/home/xlt/.acpass"
 
 function cleanup {
-	SED="sed -i '/$USERDATA_BEGIN_FLAG/,/$USERDATA_END_FLAG/ { d }' $HOSTS_FILE"
-	eval $SED
+  SED="sed -i '/$USERDATA_BEGIN_FLAG/,/$USERDATA_END_FLAG/ { d }' $HOSTS_FILE"
+  eval $SED
 }
 
 function get_meta {
-	curl -s -f -H 'Metadata-Flavor: Google' $METADATA_SERVER_URL/instance/attributes/$1
+  curl -s -f -H 'Metadata-Flavor: Google' $METADATA_SERVER_URL/instance/attributes/$1
 }
 
 # Carry out specific functions when asked to by the system
 case "$1" in
-	start)
-		# get the meta data
-		HOST_MAPPING=`get_meta hostData`
-		echo "HOST_MAPPING: $HOST_MAPPING"
-		PASSWORD=`get_meta acPassword`
-		echo "PASSWORD: $PASSWORD"
+  start)
+    # get the meta data
+    HOST_MAPPING=`get_meta hostData`
+    echo "HOST_MAPPING: $HOST_MAPPING"
+    PASSWORD=`get_meta acPassword`
+    echo "PASSWORD: $PASSWORD"
 
-		if [ -n "$PASSWORD" ]; then
-			sudo echo $PASSWORD > $PASSWORD_FILE
-		else
-			if [ -f $PASSWORD_FILE ]; then
-				sudo rm -f $PASSWORD_FILE
-			fi
-		fi
+    if [ -n "$PASSWORD" ]; then
+      sudo echo $PASSWORD > $PASSWORD_FILE
+    else
+      if [ -f $PASSWORD_FILE ]; then
+        sudo rm -f $PASSWORD_FILE
+      fi
+    fi
 
-		echo "Remove old host data"
-		cleanup
+    echo "Remove old host data"
+    cleanup
 
-		echo "Apply host data"
-		if [ -n "$HOST_MAPPING" ]; then
-			sudo echo "$USERDATA_BEGIN_FLAG" >> $HOSTS_FILE
-			sudo echo -E "$HOST_MAPPING" >> $HOSTS_FILE
-			sudo echo "$USERDATA_END_FLAG" >> $HOSTS_FILE
-		fi
-		;;
-	stop)
-		cleanup
-		;;
-	*)
-		echo "Usage: $0 {start|stop}"
-		exit 0
-		;;
+    echo "Apply host data"
+    if [ -n "$HOST_MAPPING" ]; then
+      sudo echo "$USERDATA_BEGIN_FLAG" >> $HOSTS_FILE
+      sudo echo -E "$HOST_MAPPING" >> $HOSTS_FILE
+      sudo echo "$USERDATA_END_FLAG" >> $HOSTS_FILE
+    fi
+    ;;
+  stop)
+    cleanup
+    ;;
+  *)
+    echo "Usage: $0 {start|stop}"
+    exit 0
+    ;;
 esac
 
 exit 0

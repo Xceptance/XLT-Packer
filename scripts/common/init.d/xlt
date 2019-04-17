@@ -19,42 +19,42 @@ XLT_SCRIPT_NAME=start-xlt.sh
 
 # Read in system's default locale definition and export it.
 if [ -r /etc/default/locale ]; then
-	. /etc/default/locale
-	export LANG
+  . /etc/default/locale
+  export LANG
 fi
 
 # Carry out specific functions when asked to by the system
 case "$1" in
-	start)
-		sudo touch $XLT_HOME/.xlt-starting
-		/etc/init.d/userdata start
-		echo "Creating primary home $XLT_WORKDIR"
-		sudo mkdir -p $XLT_WORKDIR
-		if [ ! -d $XLT_WORKDIR ]; then
-			echo "FAILED creating primary home $XLT_WORKDIR"
-			exit -1
-		fi
+  start)
+    sudo touch $XLT_HOME/.xlt-starting
+    /etc/init.d/userdata start
+    echo "Creating primary home $XLT_WORKDIR"
+    sudo mkdir -p $XLT_WORKDIR
+    if [ ! -d $XLT_WORKDIR ]; then
+      echo "FAILED creating primary home $XLT_WORKDIR"
+      exit -1
+    fi
 
-		sudo chown $XLT_USER:$XLT_USER $XLT_WORKDIR
-		echo "Primary home created"
+    sudo chown $XLT_USER:$XLT_USER $XLT_WORKDIR
+    echo "Primary home created"
 
-		echo "Starting XLT agent controllers from $XLT_HOME ..."
-		cd $XLT_HOME
-		sudo -u $XLT_USER ./$XLT_SCRIPT_NAME xlt.zip $XLT_WORKDIR 1 noremove
-		sudo rm $XLT_HOME/.xlt-starting
-		;;
-	stop)
-		echo "Stopping XLT agent controllers ..."
-		sudo -u $XLT_USER killall -9 -u $XLT_USER java
-		;;
-	restart)
-		$0 stop
-		$0 start
-		;;
-	*)
-		echo "Usage: $0 {start|stop|restart}"
-		exit 1
-		;;
+    echo "Starting XLT agent controllers from $XLT_HOME ..."
+    cd $XLT_HOME
+    sudo -u $XLT_USER ./$XLT_SCRIPT_NAME xlt.zip $XLT_WORKDIR 1 noremove
+    sudo rm $XLT_HOME/.xlt-starting
+    ;;
+  stop)
+    echo "Stopping XLT agent controllers ..."
+    sudo -u $XLT_USER killall -9 -u $XLT_USER java
+    ;;
+  restart)
+    $0 stop
+    $0 start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+    ;;
 esac
 
 exit 0
