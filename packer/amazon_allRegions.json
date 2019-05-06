@@ -1,7 +1,6 @@
 {
   "variables": {
     "region": "eu-west-1",
-    "aws_base_ami": "ami-0181f8d9b6f098ec4",
     "xlt_version": "4.12.2",
     "image_name": "XLT-Image-{{timestamp}}",
     "dest_regions": "ap-northeast-1,ap-southeast-1,ap-southeast-2,eu-central-1,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2",
@@ -17,7 +16,15 @@
       "access_key": "{{user `aws_access_key`}}",
       "secret_key": "{{user `aws_secret_key`}}",
       "region": "{{user `region`}}",
-      "source_ami": "{{user `aws_base_ami`}}",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "ubuntu/images/*ubuntu-xenial-16.04-amd64-server-*",
+          "root-device-type": "ebs"
+        },
+        "owners": ["099720109477"],
+        "most_recent": true
+      },
       "instance_type": "t1.micro",
       "ssh_username": "ubuntu",
       "ami_name": "{{user `image_name` | clean_ami_name}}",
