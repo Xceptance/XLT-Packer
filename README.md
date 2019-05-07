@@ -115,9 +115,9 @@ Also note, that you need to allow incoming network traffic on TCP port *8500* fo
 You can do this by adding an appropriate firewall rule in your network settings at: `https://console.developers.google.com/project/<YOUR_PROJECT>/networks/list`
 
 
-## XLT at full throttle ##
+## XLT at Full Throttle ##
 
-The following optimizations have been applied to the underlying OS to prevent/minimize situations where no additional load could be generated due to lack of available resources:
+The following optimizations have been applied to the underlying OS to allow for high-scale and resource-efficient load-testing:
  - increased OS limit of number of open files
  - enlarged range of local ports per IP
  - enabled reuse of sockets that are in timed-waiting state
