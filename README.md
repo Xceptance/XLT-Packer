@@ -9,13 +9,15 @@ Up to now, you can find scripts for the following cloud vendors:
 
 NOTE: Please note that this is not for cloud managing, but only for image creation.
 
+All XLT images are based on Ubuntu 16.04 (xenial), so using another base OS (even another Ubuntu) may not work.
+
 ## Preparation ##
 
-Most of the work (and magic) is done by a open-source tool named [Packer](https://packer.io) by HashiCorp. So, you will need to [download and install](https://packer.io/downloads.html) it first.
+Most of the work (and magic) is done by a open-source tool named [Packer](https://packer.io) built by HashiCorp. So, you will need to [download and install](https://packer.io/downloads.html) it first.
 
 ## Create an Image ##
 
-Now that you have installed packer, you can use it to build XLT images for any supported Cloud vendor listed above.
+Now that you have installed packer, you can use it to build XLT images for any supported cloud vendor listed above.
 To do so, invoke packer with the `build` command followed by the JSON file that corresponds to your cloud vendor.
 
 For example, to create a new Amazon EC2 AMI, you would run:
@@ -74,9 +76,6 @@ To create an **A**mazon **M**achine **I**mage you'll need to pass:
  - your AWS access key
  - the name of a ssh key-pair stored in your AWS account
  - the path to the corresponding private key file
- - the base image on which the new XLT image should be build
-
-NOTE: The XLT images are based on Ubuntu 16.04 (xenial), so using another base OS (even another Ubuntu) may not work. You can also find a list of base images [here](https://cloud-images.ubuntu.com/locator/ec2/).
 
 We also offer a template to build and publish an AMI for _multiple regions at once_: `packer/amazon_allRegions.json`.
 The image will then be built in the region specified by the variable `region` and is then copied to the regions specified by the key `ami_regions` in the builder configuration.
@@ -97,7 +96,7 @@ To create a DigitalOcean image you'll need to pass:
  - the name of new image (defaults to _XLT-Image-&lt;TIMESTAMP&gt;_)
  - your DigitalOcean API token
 
-As for Amazon EC2, we also use Ubuntu 16.04 LTS as base image here. And, in case you want to build an image for multiple regions at once, you can use the template `packer/digitalOcean_allRegions.json`.
+In case you want to build an image for multiple regions at once, you can use the template `packer/digitalOcean_allRegions.json`.
 
 ### Google Compute Engine Configuration ##
 
@@ -114,3 +113,11 @@ Please be reminded that image names must obey the following rules:
 
 Also note, that you need to allow incoming network traffic on TCP port *8500* for all of your instances so that you can connect to the agent controllers.
 You can do this by adding an appropriate firewall rule in your network settings at: `https://console.developers.google.com/project/<YOUR_PROJECT>/networks/list`
+
+
+## XLT at full throttle ##
+
+The following optimizations have been applied to the underlying OS to prevent/minimize situations where no additional load could be generated due to lack of available resources:
+ - increased OS limit of number of open files
+ - enlarged range of local ports per IP
+ - enabled reuse of sockets that are in timed-waiting state
