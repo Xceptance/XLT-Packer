@@ -7,9 +7,8 @@ if ! test `id -u` -eq 0 ; then
 fi
 
 ## first the variables
-SCRIPT_DIR=`dirname $0`
-SCRIPT_DIR="$SCRIPT_DIR/../xlt-home"
-INIT_SCRIPT_DIR="$SCRIPT_DIR/../init.d"
+SCRIPT_DIR=`realpath -m $0/..`
+INIT_SCRIPT_DIR="$(dirname $SCRIPT_DIR)/init.d"
 
 XLT_USER="xlt"
 XLT_HOME="/home/$XLT_USER"
@@ -25,13 +24,11 @@ XLT_INITD_SCRIPT_NAME="xlt"
 XLT_START_SCRIPT_NAME="start-xlt.sh"
 NTP_START_SCRIPT="ntptime"
 
-FIREFOX_ESR_VERSION="60.5.1esr"
+FIREFOX_ESR_VERSION="60.6.2esr"
 FIREFOX_ESR_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_ESR_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_ESR_VERSION}.tar.bz2"
-FIREFOX_ESR_CHECKSUM="2d8e6cb8c1211e58631f5cb2ff73bcd30a8a28c762c649fd40e9fd7e1a3570ce"
+FIREFOX_ESR_CHECKSUM="5e353a1d63d4f3fd0205bfdc89ed9e526af81f7f8acf8cb45ad207cc22324367"
 GECKODRIVER_VERSION="v0.24.0"
 GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz"
-CHROMEDRIVER_VERSION="2.46"
-CHROMEDRIVER_DOWNLOAD_URL="https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
 
 OPENJDK_DOWNLOAD_URL="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.3_7.tar.gz"
 OPENJDK_CHECKSUM="23cded2b43261016f0f246c85c8948d4a9b7f2d44988f75dad69723a7a526094"
@@ -50,6 +47,21 @@ function checkInitFile {
   if [ ! -e $FILE ]; then
     echo "Cannot find $FILE"
     exit 1
+  fi
+}
+
+## helper function used to determine correct chromedriver version and its download URL
+function _chromedriverUrl()
+{
+  local chromedriver_url="https://chromedriver.storage.googleapis.com"
+  local chromium_version=`dpkg-query -s chromium-browser | sed -n 's/Version:\s*\([0-9]*\.[0-9]*\.[0-9]*\).*/\1/p'`
+  local chromedriver_version=`curl -Lsf "$chromedriver_url/LATEST_RELEASE_$chromium_version"`
+
+  if [ -z "$chromedriver_version" ]; then
+    echo "Failed to determine required version of chromedriver."
+    exit 1
+  else
+    echo "${chromedriver_url}/${chromedriver_version}/chromedriver_linux64.zip"
   fi
 }
 
@@ -134,7 +146,7 @@ chown root:root /usr/bin/geckodriver
 chmod 755 /usr/bin/geckodriver
 
 # Download chromedriver from Google and put it into path
-curl -L $CHROMEDRIVER_DOWNLOAD_URL -o /tmp/chromedriver_linux64.zip
+curl -L $(_chromedriverUrl) -o /tmp/chromedriver_linux64.zip
 unzip -d /usr/bin /tmp/chromedriver_linux64.zip
 chown root:root /usr/bin/chromedriver
 chmod 755 /usr/bin/chromedriver
@@ -270,7 +282,7 @@ fi
 echo "Clean up setup files"
 
 apt-get -y clean && apt-get -y autoremove && rm -rf /var/lib/lists/*
-cd $HOME
+cd /
 rm -rf $SCRIPT_DIR $INIT_SCRIPT_DIR
 
 echo "Setup finished."
