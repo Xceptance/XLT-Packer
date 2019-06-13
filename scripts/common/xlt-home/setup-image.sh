@@ -99,6 +99,10 @@ DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
   git \
   jq
 
+# Set chromium-browser and firefox on hold to prevent "accidental" update
+DEBIAN_FRONTEND=noninteractive apt-mark hold chromium-browser firefox
+
+# Get rid of SnapD
 DEBIAN_FRONTEND=noninteractive apt-get -y purge snapd
 
 # install OpenJDK11
