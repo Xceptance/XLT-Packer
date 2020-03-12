@@ -240,7 +240,9 @@ SOURCE=$1
 TARGET_ARCHIVE="$XLT_HOME/xlt.zip"
 
 if [ ! -f $SOURCE ]; then
-  SOURCE="https://lab.xceptance.de/nexus/service/rest/v1/search/assets/download?group=com.xceptance&name=xlt&repository=public&maven.extension=zip&version=$SOURCE"
+  ## Commented out since XLT releases are deployed to Sonatype now (Nexus Repository Manager v2)
+  #SOURCE="https://lab.xceptance.de/nexus/service/rest/v1/search/assets/download?group=com.xceptance&name=xlt&repository=public&maven.extension=zip&version=$SOURCE"
+  SOURCE="https://oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.xceptance&a=xlt&e=zip&v=$SOURCE"
 fi
 
 if [[ $SOURCE == http://* ]] || [[ $SOURCE == https://* ]]; then
