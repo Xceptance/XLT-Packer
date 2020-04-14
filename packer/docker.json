@@ -1,0 +1,55 @@
+{
+  "variables": {
+    "xlt_version": "5.0.1",
+    "image_repository": "xceptance/xlt",
+    "image_tag": "{{user `xlt_version`}}",
+    "registry_username": "<YOUR_DOCKER_REGISTRY_USERNAME>",
+    "registry_password": "<YOUR_DOCKER_REGISTRY_PASSWORD>"
+  },
+  "builders": [
+    {
+      "type": "docker",
+      "image": "ubuntu:16.04",
+      "commit": true,
+      "changes": [
+          "EXPOSE 8500",
+          "ENTRYPOINT [ \"/entrypoint.sh\" ]"
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "./scripts/common/",
+      "destination": "/root"
+    },
+    {
+      "type": "file",
+      "source": "./scripts/docker/",
+      "destination": "/root"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "chmod +x ~/xlt-home/*.sh",
+        "chmod +x ~/init.d/*",
+        "~/xlt-home/setup-image.sh {{user `xlt_version`}}"
+      ]
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "docker-tag",
+        "repository": "{{user `image_repository`}}",
+        "tag": "{{user `image_tag`}}"
+      },
+      {
+        "type": "docker-push",
+        "login": "true",
+        "login_username": "{{user `registry_username`}}",
+        "login_password": "{{user `registry_password`}}"
+      }
+    ]
+  ]
+} 

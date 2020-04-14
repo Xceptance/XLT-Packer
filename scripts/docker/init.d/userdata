@@ -1,0 +1,62 @@
+#! /bin/bash
+# /etc/init.d/userdata
+#
+
+### BEGIN INIT INFO
+# Provides:          userdata
+# Required-Start:
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Apply userdata to /etc/hosts
+# Description:       Apply userdata to /etc/hosts
+### END INIT INFO
+
+USERDATA_BEGIN_FLAG="# User data entries START"
+USERDATA_END_FLAG="# User data entries END"
+HOSTS_FILE="/etc/hosts"
+PASSWORD_FILE="/home/xlt/.acpass"
+
+function cleanup {
+  # modify the hosts file without recreating it
+  TMP=`cat $HOSTS_FILE`
+  echo "$TMP" | sed "/$USERDATA_BEGIN_FLAG/,/$USERDATA_END_FLAG/d" > $HOSTS_FILE
+}
+
+# Carry out specific functions when asked to by the system
+case "$1" in
+  start)
+    # get the meta data from environment variables
+    HOST_MAPPING="$HOST_DATA"
+    echo "HOST_MAPPING: $HOST_MAPPING"
+    PASSWORD="$AC_PASSWORD"
+    echo "PASSWORD: $PASSWORD"
+
+    if [ -n "$PASSWORD" ]; then
+      sudo echo $PASSWORD > $PASSWORD_FILE
+    else
+      if [ -f $PASSWORD_FILE ]; then
+        sudo rm -f $PASSWORD_FILE
+      fi
+    fi
+
+    echo "Remove old host data"
+    cleanup
+
+    echo "Apply host data"
+    if [ -n "$HOST_MAPPING" ]; then
+      sudo echo "$USERDATA_BEGIN_FLAG" >> $HOSTS_FILE
+      sudo echo -e "$HOST_MAPPING" >> $HOSTS_FILE
+      sudo echo "$USERDATA_END_FLAG" >> $HOSTS_FILE
+    fi
+    ;;
+  stop)
+    cleanup
+    ;;
+  *)
+    echo "Usage: $0 {start|stop}"
+    exit 0
+    ;;
+esac
+
+exit 0
