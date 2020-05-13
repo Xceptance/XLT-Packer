@@ -9,7 +9,7 @@ Up to now, you can find scripts for the following cloud vendors:
 
 NOTE: Please note that this is not for cloud managing, but only for image creation.
 
-All XLT images are based on Ubuntu 16.04 (xenial), so using another base OS (even another Ubuntu) may not work.
+All XLT images are based on Ubuntu 18.04 (bionic), so using another base OS (even another Ubuntu) may not work.
 
 ## Preparation ##
 

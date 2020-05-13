@@ -13,10 +13,10 @@
       "account_file": "{{user `account_file`}}",
       "project_id": "{{user `project`}}",
       "zone": "{{user `zone`}}",
-      "source_image_family": "ubuntu-1604-lts",
+      "source_image_family": "ubuntu-1804-lts",
       "image_name": "xlt-{{user `image_version` | clean_resource_name}}-{{isotime \"v20060102\"}}",
       "image_family": "xlt-{{user `image_family`}}",
-      "image_description": "Standard Ubuntu 16.04 LTS with XLT pre-installed.",
+      "image_description": "Standard Ubuntu 18.04 LTS with XLT pre-installed.",
       "ssh_username": "root"
     }
   ],
