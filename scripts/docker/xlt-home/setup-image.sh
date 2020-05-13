@@ -25,14 +25,14 @@ XLT_INITD_SCRIPT_NAME="xlt"
 XLT_START_SCRIPT_NAME="start-xlt.sh"
 NTP_START_SCRIPT="ntptime"
 
-FIREFOX_ESR_VERSION="60.6.2esr"
+FIREFOX_ESR_VERSION="68.8.0esr"
 FIREFOX_ESR_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_ESR_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_ESR_VERSION}.tar.bz2"
-FIREFOX_ESR_CHECKSUM="5e353a1d63d4f3fd0205bfdc89ed9e526af81f7f8acf8cb45ad207cc22324367"
-GECKODRIVER_VERSION="v0.24.0"
+FIREFOX_ESR_CHECKSUM="23227258d82c786395eb71de0b8726f94eb0b37d0953ad2eb125c1bd4f738f94"
+GECKODRIVER_VERSION="v0.26.0"
 GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz"
 
-OPENJDK_DOWNLOAD_URL="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.3_7.tar.gz"
-OPENJDK_CHECKSUM="23cded2b43261016f0f246c85c8948d4a9b7f2d44988f75dad69723a7a526094"
+OPENJDK_DOWNLOAD_URL="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.7%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.7_10.tar.gz"
+OPENJDK_CHECKSUM="ee60304d782c9d5654bf1a6b3f38c683921c1711045e1db94525a51b7024a2ca"
 
 ## check referenced files existance
 function checkFile {

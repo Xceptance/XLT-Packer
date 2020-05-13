@@ -1,6 +1,6 @@
 {
   "variables": {
-    "xlt_version": "5.0.1",
+    "xlt_version": "5.1.1",
     "image_repository": "xceptance/xlt",
     "image_tag": "{{user `xlt_version`}}",
     "registry_username": "<YOUR_DOCKER_REGISTRY_USERNAME>",
@@ -9,7 +9,7 @@
   "builders": [
     {
       "type": "docker",
-      "image": "ubuntu:16.04",
+      "image": "ubuntu:18.04",
       "commit": true,
       "changes": [
           "EXPOSE 8500",
