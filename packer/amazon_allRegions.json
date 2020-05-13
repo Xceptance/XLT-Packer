@@ -22,7 +22,7 @@
           "name": "ubuntu/images/*ubuntu-bionic-18.04-amd64-server-*",
           "root-device-type": "ebs"
         },
-        "owners": ["aws-marketplace"],
+        "owners": ["099720109477"],
         "most_recent": true
       },
       "instance_type": "t1.micro",
