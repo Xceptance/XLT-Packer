@@ -7,6 +7,7 @@
     "launch_permission" : "",
     "aws_access_key": "<YOUR_AWS_ACCESS_KEY>",
     "aws_secret_key": "<YOUR_AWS_SECRET_KEY>",
+    "aws_subnet_id": "",
     "ssh_keypair_name": "<SSH_KEY_PAIR_NAME>",
     "ssh_private_key_file": "<PATH_TO_SSH_PRIVATE_KEY>"
   },
@@ -16,6 +17,7 @@
       "access_key": "{{user `aws_access_key`}}",
       "secret_key": "{{user `aws_secret_key`}}",
       "region": "{{user `region`}}",
+      "subnet_id": "{{user `aws_subnet_id`}}",
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
