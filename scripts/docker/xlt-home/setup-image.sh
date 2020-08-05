@@ -17,13 +17,9 @@ XLT_WORKDIR="/mnt/$XLT_USER"
 
 JAVA_HOME=/usr/lib/jvm/java-11-openjdk
 
-IPv6_SCRIPT_NAME="ipv6tunnel"
-MOUNT_SCRIPT_NAME="mountdev"
 USERDATA_START_SCRIPT_NAME="userdata"
-XLT_SERVICE_CONFIG="xlt.service"
 XLT_INITD_SCRIPT_NAME="xlt"
 XLT_START_SCRIPT_NAME="start-xlt.sh"
-NTP_START_SCRIPT="ntptime"
 
 FIREFOX_ESR_VERSION="68.8.0esr"
 FIREFOX_ESR_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_ESR_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_ESR_VERSION}.tar.bz2"
@@ -71,19 +67,19 @@ checkFile openjdk-dummy_0.0.1_all.deb
 
 checkInitFile $USERDATA_START_SCRIPT_NAME;
 checkInitFile $XLT_INITD_SCRIPT_NAME;
-checkInitFile $NTP_START_SCRIPT;
 
 ## create XLT user
 echo "Create XLT user"
 adduser --disabled-login --disabled-password --gecos "" $XLT_USER
-
 
 ## update system
 echo "Update system"
 # update available packages
 apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
+
 # install required progs: unzip, firefox, Xvfb etc.
+echo "Install additional packages"
 DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
   wget \
   curl \
@@ -101,8 +97,7 @@ DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
   jq \
   bzip2 \
   psmisc \
-  sudo \
-  vim
+  sudo
 
 # Set chromium-browser and firefox on hold to prevent "accidental" update
 DEBIAN_FRONTEND=noninteractive apt-mark hold chromium-browser firefox
@@ -134,10 +129,8 @@ apt-get install -y --no-install-recommends ca-certificates-java \
   && rm $JAVA_HOME/lib/security/cacerts \
   && ln -s /etc/ssl/certs/java/cacerts $JAVA_HOME/lib/security/
 
-
 # install Maven (Maven needs Java, so install it in the correct order)
 DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install maven
-
 
 # Download Firefox ESR and put it into path
 curl -L $FIREFOX_ESR_DOWNLOAD_URL -o /tmp/firefox.tar.bz2
@@ -149,12 +142,14 @@ ln -s /usr/lib/firefox-esr/firefox /usr/bin/firefox-esr
 rm /tmp/firefox.tar.bz2
 
 # Download Geckodriver from GitHub and put it into path
+echo "Install geckodriver"
 curl -L $GECKODRIVER_DOWNLOAD_URL -o /tmp/geckodriver-linux64.tgz
 tar -xz -C /usr/bin -f /tmp/geckodriver-linux64.tgz
 chown root:root /usr/bin/geckodriver
 chmod 755 /usr/bin/geckodriver
 
 # Download chromedriver from Google and put it into path
+echo "Install chromedriver"
 curl -L $(_chromedriverUrl) -o /tmp/chromedriver_linux64.zip
 unzip -d /usr/bin /tmp/chromedriver_linux64.zip
 chown root:root /usr/bin/chromedriver
@@ -175,65 +170,15 @@ cp $SCRIPT_DIR/$XLT_START_SCRIPT_NAME $XLT_HOME
 chmod 755 $XLT_HOME/$XLT_START_SCRIPT_NAME
 chown xlt:xlt $XLT_HOME/$XLT_START_SCRIPT_NAME
 
-# set ntp script
-#echo "Install NTP script"
-#cp $INIT_SCRIPT_DIR/$NTP_START_SCRIPT /etc/init.d/
-#chmod 755 /etc/init.d/$NTP_START_SCRIPT
-#update-rc.d $NTP_START_SCRIPT start 19 2 3 4 5 .
-
 # user data script
 echo "Install UserData script"
 cp $INIT_SCRIPT_DIR/$USERDATA_START_SCRIPT_NAME /etc/init.d/
 chmod 755 /etc/init.d/$USERDATA_START_SCRIPT_NAME
-#update-rc.d $USERDATA_START_SCRIPT_NAME remove
 
 # set start script
 echo "Install initial XLT start script"
 cp $INIT_SCRIPT_DIR/$XLT_INITD_SCRIPT_NAME /etc/init.d/
 chmod 755 /etc/init.d/$XLT_INITD_SCRIPT_NAME
-#update-rc.d $XLT_INITD_SCRIPT_NAME defaults
-
-# set IPv6 script
-#if [ -e $INIT_SCRIPT_DIR/$IPv6_SCRIPT_NAME ]; then
-#  echo "Install IPv6 script"
-#  cp $INIT_SCRIPT_DIR/$IPv6_SCRIPT_NAME /etc/init.d/
-#  chmod 755 /etc/init.d/$IPv6_SCRIPT_NAME
-#  update-rc.d $IPv6_SCRIPT_NAME defaults
-#fi
-
-
-## tune system limits
-#echo "Tune system limits"
-#if ! grep '^\s*\*\s*soft\s*nofile' /etc/security/limits.conf; then
-#  echo '*       soft    nofile  128000' >> /etc/security/limits.conf
-#fi
-#if ! grep '^\s*\*\s*hard\s*nofile' /etc/security/limits.conf; then
-#  echo '*       hard    nofile  128000' >> /etc/security/limits.conf
-#fi
-### ... same for SystemD
-#if [ -f /etc/systemd/system.conf ]; then
-#  if ! grep '^\s*DefaultLimitNOFILE=' /etc/systemd/system.conf; then
-#    echo "DefaultLimitNOFILE=128000" >> /etc/systemd/system.conf
-#  fi
-#fi
-
-## tune kernel settings
-#if [ -d /etc/sysctl.d ]; then
-#  echo "Tune kernel"
-#  cat <<-EOF > /etc/sysctl.d/99-xlt.conf
-## Enable reuse of ipv4 sockets that are in waiting state
-#net.ipv4.tcp_tw_reuse=1
-## Widen local port range
-#net.ipv4.ip_local_port_range=1024 65000
-#EOF
-#
-#fi
-
-## secure login
-#if [ -f /etc/ssh/sshd_config ]; then
-#  echo "Disable root login via ssh"
-#  sed -ri 's/^\s*PermitRootLogin\s*yes$/PermitRootLogin\ no/g' /etc/ssh/sshd_config
-#fi
 
 # install XLT
 echo "Installing XLT"
@@ -266,28 +211,8 @@ fi
 echo "set up rights"
 chown xlt:xlt $TARGET_ARCHIVE
 
-
-# prepare AMI creation
-#echo "Remove SSH stuff ..."
-
-# [ -d /etc/ssh ] && rm /etc/ssh/ssh_host_*
-
-# do NOT remove the authorized_keys file but just empty it
-#if [ -d /home/ubuntu/.ssh ]; then
-#  echo | tee /home/ubuntu/.ssh/authorized_keys
-#  if [ $? != 0 ]; then exit 4; fi
-#fi
-
-# do NOT remove the authorized_keys file but just empty it
-#if [ -d /root/.ssh ]; then
-#  echo | tee /root/.ssh/authorized_keys
-#  if [ $? != 0 ]; then exit 4; fi
-#fi
-
-
-## clean up
+## clean up setup files
 echo "Clean up setup files"
-
 apt-get -y clean && apt-get -y autoremove && rm -rf /var/lib/lists/*
 cd /
 rm -rf $SCRIPT_DIR $INIT_SCRIPT_DIR $FILES_DIR
