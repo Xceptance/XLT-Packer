@@ -9,7 +9,6 @@ fi
 ## first the variables
 SCRIPT_DIR=`realpath -m $0/..`
 INIT_SCRIPT_DIR="$(dirname $SCRIPT_DIR)/init.d"
-FILES_DIR="$(dirname $SCRIPT_DIR)/files"
 
 XLT_USER="xlt"
 XLT_HOME="/home/$XLT_USER"
@@ -20,6 +19,7 @@ JAVA_HOME=/usr/lib/jvm/java-11-openjdk
 USERDATA_START_SCRIPT_NAME="userdata"
 XLT_INITD_SCRIPT_NAME="xlt"
 XLT_START_SCRIPT_NAME="start-xlt.sh"
+ENTRYPOINT_SCRIPT_NAME=entrypoint.sh
 
 FIREFOX_ESR_VERSION="68.8.0esr"
 FIREFOX_ESR_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_ESR_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_ESR_VERSION}.tar.bz2"
@@ -64,6 +64,7 @@ function _chromedriverUrl()
 
 checkFile $XLT_START_SCRIPT_NAME;
 checkFile openjdk-dummy_0.0.1_all.deb
+checkFile $ENTRYPOINT_SCRIPT_NAME
 
 checkInitFile $USERDATA_START_SCRIPT_NAME;
 checkInitFile $XLT_INITD_SCRIPT_NAME;
@@ -147,6 +148,7 @@ curl -L $GECKODRIVER_DOWNLOAD_URL -o /tmp/geckodriver-linux64.tgz
 tar -xz -C /usr/bin -f /tmp/geckodriver-linux64.tgz
 chown root:root /usr/bin/geckodriver
 chmod 755 /usr/bin/geckodriver
+rm /tmp/geckodriver-linux64.tgz
 
 # Download chromedriver from Google and put it into path
 echo "Install chromedriver"
@@ -155,14 +157,6 @@ unzip -d /usr/bin /tmp/chromedriver_linux64.zip
 chown root:root /usr/bin/chromedriver
 chmod 755 /usr/bin/chromedriver
 rm /tmp/chromedriver_linux64.zip
-
-# setup container start script
-ENTRYPOINT_SCRIPT_NAME=entrypoint.sh
-if [ -f $FILES_DIR/$ENTRYPOINT_SCRIPT_NAME ]; then
-  echo "Install container start script"
-  cp $FILES_DIR/$ENTRYPOINT_SCRIPT_NAME /
-  chmod 755 /$ENTRYPOINT_SCRIPT_NAME
-fi
 
 # setup XLT start script
 echo "Install XLT start script"
@@ -179,6 +173,11 @@ chmod 755 /etc/init.d/$USERDATA_START_SCRIPT_NAME
 echo "Install initial XLT start script"
 cp $INIT_SCRIPT_DIR/$XLT_INITD_SCRIPT_NAME /etc/init.d/
 chmod 755 /etc/init.d/$XLT_INITD_SCRIPT_NAME
+
+# container start script
+echo "Install container start script"
+cp $SCRIPT_DIR/$ENTRYPOINT_SCRIPT_NAME /
+chmod 755 /$ENTRYPOINT_SCRIPT_NAME
 
 # install XLT
 echo "Installing XLT"
@@ -211,10 +210,10 @@ fi
 echo "set up rights"
 chown xlt:xlt $TARGET_ARCHIVE
 
-## clean up setup files
+## clean up
 echo "Clean up setup files"
 apt-get -y clean && apt-get -y autoremove && rm -rf /var/lib/lists/*
 cd /
-rm -rf $SCRIPT_DIR $INIT_SCRIPT_DIR $FILES_DIR
+rm -rf $SCRIPT_DIR $INIT_SCRIPT_DIR
 
 echo "Setup finished."

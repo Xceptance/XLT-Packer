@@ -4,5 +4,5 @@
 # variables are available)
 /etc/init.d/xlt start
 
-# HACK: stop container from exiting
+# stop container from exiting
 sleep infinity

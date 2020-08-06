@@ -2,18 +2,19 @@
 
 Build cloud machine images running [Xceptance LoadTest](https://xceptance.com/xlt) with ease using [Packer](https://packer.io).
 
-Up to now, you can find scripts for the following cloud vendors:
+Up to now, you can find scripts for the following cloud vendors or platforms:
  - DigitalOcean
  - Amazon EC2
  - Google Compute Engine
+ - Docker
 
 NOTE: Please note that this is not for cloud managing, but only for image creation.
 
-All XLT images are based on Ubuntu 16.04 (xenial), so using another base OS (even another Ubuntu) may not work.
+All XLT images are based on Ubuntu 18.04 (bionic), so using another base OS (even another Ubuntu) may not work.
 
 ## Preparation ##
 
-Most of the work (and magic) is done by a open-source tool named [Packer](https://packer.io) built by HashiCorp. So, you will need to [download and install](https://packer.io/downloads.html) it first.
+Most of the work (and magic) is done by an open-source tool named [Packer](https://packer.io) built by HashiCorp. So, you will need to [download and install](https://packer.io/downloads.html) it first.
 
 ## Create an Image ##
 
@@ -98,7 +99,7 @@ To create a DigitalOcean image you'll need to pass:
 
 In case you want to build an image for multiple regions at once, you can use the template `packer/digitalOcean_allRegions.json`.
 
-### Google Compute Engine Configuration ##
+### Google Compute Engine Configuration ###
 
 To create a **G**oogle **C**ompute **E**ngine image you'll need to pass:
  - the zone you want the new image to be built in
@@ -115,9 +116,35 @@ Also note, that you need to allow incoming network traffic on TCP port *8500* fo
 You can do this by adding an appropriate firewall rule in your network settings at: `https://console.developers.google.com/project/<YOUR_PROJECT>/networks/list`
 
 
+### Docker Configuration ###
+
+When creating a Docker image you'll need to pass:
+
+ - the XLT version that should run in your new image
+ - the repository to store the docker image to
+ - the tags to apply to the docker image (as a comma-separated list)
+ - the URL of the docker image registry to which the image is to be pushed (defaults to docker.io if empty)
+ - the username to use when logging into the registry
+ - the password to use when logging into the registry
+
+See below for a corresponding variables file template:
+
+```json
+  {
+    "xlt_version": "5.1.2",
+    "image_repository": "myorganization/xlt",
+    "image_tags": "5.1.2,greatest",
+    "registry_url": "https://docker.io/",
+    "registry_username": "myusername",
+    "registry_password": "mypassword"
+  }
+```
+
 ## XLT at Full Throttle ##
 
 The following optimizations have been applied to the underlying OS to allow for high-scale and resource-efficient load-testing:
  - increased OS limit of number of open files
  - enlarged range of local ports per IP
  - enabled reuse of sockets that are in timed-waiting state
+
+Note that these optimizations are not effective when using the Docker image as they would actually have to be applied to the OS of the host machine.
