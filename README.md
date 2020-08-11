@@ -14,7 +14,7 @@ All XLT images are based on Ubuntu 18.04 (bionic), so using another base OS (eve
 
 ## Preparation ##
 
-Most of the work (and magic) is done by an open-source tool named [Packer](https://packer.io) built by HashiCorp. So, you will need to [download and install](https://packer.io/downloads.html) it first. Make sure to download version 1.6.0 or later.
+Most of the work (and magic) is done by an open-source tool named [Packer](https://packer.io) built by HashiCorp. So, you will need to [download and install](https://packer.io/downloads.html) it first. Note that Packer v1.6.0 or later is required.
 
 ## Create an Image ##
 
