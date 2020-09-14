@@ -123,7 +123,7 @@ When creating a Docker image you'll need to pass:
  - the XLT version that should run in your new image
  - the repository to store the docker image to
  - the tags to apply to the docker image (as a comma-separated list)
- - the URL of the docker image registry to which the image is to be pushed (defaults to docker.io if empty)
+ - the URL of the docker image registry to which the image is to be pushed (leave empty for Docker Hub)
  - the username to use when logging into the registry
  - the password to use when logging into the registry
 
@@ -134,7 +134,7 @@ See below for a corresponding variables file template:
     "xlt_version": "5.1.2",
     "image_repository": "myorganization/xlt",
     "image_tags": "5.1.2,greatest",
-    "registry_url": "https://docker.io/",
+    "registry_url": "",
     "registry_username": "myusername",
     "registry_password": "mypassword"
   }
