@@ -30,7 +30,7 @@ for arg in $@ ; do
   case $arg in
     --help)
       help
-      exit0
+      exit 0
       ;;
   esac
 done
@@ -95,7 +95,7 @@ fi
 # Configure port and password
 sed -i 's/com.xceptance.xlt.agentcontroller.port =.*/com.xceptance.xlt.agentcontroller.port = 8500/g' $AGENT_DIR/config/agentcontroller.properties
 if [ -n "$PASSWORD" ]; then
-  sed -i 's/^com.xceptance.xlt.agentcontroller.password = .*$/com.xceptance.xlt.agentcontroller.password = $PASSWORD/g' $AGENT_DIR/config/agentcontroller.properties
+  sed -i 's/^com.xceptance.xlt.agentcontroller.password = .*$/com.xceptance.xlt.agentcontroller.password = '"$PASSWORD"'/g' $AGENT_DIR/config/agentcontroller.properties
 else
   sed -i 's/^\(com.xceptance.xlt.agentcontroller.password =.*\)$/#\1/g' $AGENT_DIR/config/agentcontroller.properties
 fi
