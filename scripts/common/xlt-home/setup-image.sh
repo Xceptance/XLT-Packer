@@ -74,7 +74,7 @@ checkInitFile $NTP_START_SCRIPT;
 
 ## create XLT user
 echo "Create XLT user"
-adduser --disabled-login --disabled-password $XLT_USER
+adduser --disabled-login --disabled-password --gecos "" $XLT_USER
 
 
 ## update system
@@ -83,6 +83,7 @@ echo "Update system"
 apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
 # install required progs: unzip, firefox, Xvfb etc.
+echo "Install additional packages"
 DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
   wget \
   curl \
@@ -111,6 +112,7 @@ echo "$OPENJDK_CHECKSUM /tmp/openjdk11.tgz" | sha256sum -c --status - || exit 1
 mkdir -p $JAVA_HOME
 tar -C $JAVA_HOME --strip-components=1 --exclude=demo --exclude=legal -xzf /tmp/openjdk11.tgz
 rm /tmp/openjdk11.tgz
+
 ## install our OpenJDK dummy package to satisfy dependencies
 dpkg -i $SCRIPT_DIR/openjdk-dummy_0.0.1_all.deb
 ## update Java alternatives (also links system-default Java runtime binary to installed OpenJDK)
@@ -124,7 +126,9 @@ chmod +x /etc/profile.d/jdk.sh
 
 # Set default keystore type to JKS
 sed -i -e 's/^\(keystore\.type\)=.*$/\1=JKS/' $JAVA_HOME/conf/security/java.security
+
 # Install Root CA certs for Java
+
 apt-get install -y --no-install-recommends ca-certificates-java \
   && rm $JAVA_HOME/lib/security/cacerts \
   && ln -s /etc/ssl/certs/java/cacerts $JAVA_HOME/lib/security/
@@ -144,12 +148,15 @@ ln -s /usr/lib/firefox-esr/firefox /usr/bin/firefox-esr
 rm /tmp/firefox.tar.bz2
 
 # Download Geckodriver from GitHub and put it into path
+echo "Install geckodriver"
 curl -L $GECKODRIVER_DOWNLOAD_URL -o /tmp/geckodriver-linux64.tgz
 tar -xz -C /usr/bin -f /tmp/geckodriver-linux64.tgz
 chown root:root /usr/bin/geckodriver
 chmod 755 /usr/bin/geckodriver
+rm /tmp/geckodriver-linux64.tgz
 
 # Download chromedriver from Google and put it into path
+echo "Install chromedriver"
 curl -L $(_chromedriverUrl) -o /tmp/chromedriver_linux64.zip
 unzip -d /usr/bin /tmp/chromedriver_linux64.zip
 chown root:root /usr/bin/chromedriver
@@ -176,12 +183,20 @@ update-rc.d $USERDATA_START_SCRIPT_NAME remove
 
 # Setup XLT init scripts
 echo "Install initial XLT start script"
+update-rc.d $XLT_INITD_SCRIPT_NAME remove
 cp $INIT_SCRIPT_DIR/$XLT_INITD_SCRIPT_NAME /etc/init.d/
 chmod 755 /etc/init.d/$XLT_INITD_SCRIPT_NAME
 if [ -d /etc/systemd ]; then
+  # Remove "old" userdata.service - we have XLT service now!
+  if [ -f /etc/systemd/system/userdata.service ]; then
+    systemctl disable userdata.service
+    rm /etc/systemd/system/userdata.service
+  fi
+
   cp $INIT_SCRIPT_DIR/$XLT_SERVICE_CONFIG /etc/systemd/system/
   systemctl daemon-reload
   systemctl enable $XLT_SERVICE_CONFIG
+
 else
   update-rc.d $XLT_INITD_SCRIPT_NAME defaults
 fi
@@ -205,11 +220,10 @@ if ! grep '^\s*\*\s*hard\s*nofile' /etc/security/limits.conf; then
 fi
 if ! grep '^\s*\*\s*soft\s*nproc' /etc/security/limits.conf; then
   echo '*       soft    nproc  16000' >> /etc/security/limits.conf
-fi
+  fi
 if ! grep '^\s*\*\s*hard\s*nproc' /etc/security/limits.conf; then
   echo '*       hard    nproc  16000' >> /etc/security/limits.conf
 fi
-
 
 ## tune kernel settings
 if [ -d /etc/sysctl.d ]; then

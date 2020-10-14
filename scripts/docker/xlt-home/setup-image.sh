@@ -106,13 +106,16 @@ DEBIAN_FRONTEND=noninteractive apt-mark hold chromium-browser firefox
 # Get rid of SnapD
 DEBIAN_FRONTEND=noninteractive apt-get -y purge snapd
 
-# install OpenJDK11
+# Install OpenJDK11
 curl -Ls "$OPENJDK_DOWNLOAD_URL" -o /tmp/openjdk11.tgz
 echo "$OPENJDK_CHECKSUM /tmp/openjdk11.tgz" | sha256sum -c --status - || exit 1
 mkdir -p $JAVA_HOME
 tar -C $JAVA_HOME --strip-components=1 --exclude=demo --exclude=legal -xzf /tmp/openjdk11.tgz
 rm /tmp/openjdk11.tgz
 
+## install our OpenJDK dummy package to satisfy dependencies
+dpkg -i $SCRIPT_DIR/openjdk-dummy_0.0.1_all.deb
+## update Java alternatives (also links system-default Java runtime binary to installed OpenJDK)
 update-alternatives --install /usr/bin/java java $JAVA_HOME/bin/java 1099
 
 cat <<-EOF > /etc/profile.d/jdk.sh
@@ -124,13 +127,13 @@ chmod +x /etc/profile.d/jdk.sh
 # Set default keystore type to JKS
 sed -i -e 's/^\(keystore\.type\)=.*$/\1=JKS/' $JAVA_HOME/conf/security/java.security
 
-dpkg -i $SCRIPT_DIR/openjdk-dummy_0.0.1_all.deb
+# Install Root CA certs for Java
 
 apt-get install -y --no-install-recommends ca-certificates-java \
   && rm $JAVA_HOME/lib/security/cacerts \
   && ln -s /etc/ssl/certs/java/cacerts $JAVA_HOME/lib/security/
 
-# install Maven (Maven needs Java, so install it in the correct order)
+# Install Maven (Maven needs Java, so install it in the correct order)
 DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install maven
 
 # Download Firefox ESR and put it into path
@@ -158,23 +161,23 @@ chown root:root /usr/bin/chromedriver
 chmod 755 /usr/bin/chromedriver
 rm /tmp/chromedriver_linux64.zip
 
-# setup XLT start script
+# Setup XLT start script
 echo "Install XLT start script"
 cp $SCRIPT_DIR/$XLT_START_SCRIPT_NAME $XLT_HOME
 chmod 755 $XLT_HOME/$XLT_START_SCRIPT_NAME
 chown xlt:xlt $XLT_HOME/$XLT_START_SCRIPT_NAME
 
-# user data script
+# Setup user data script
 echo "Install UserData script"
 cp $INIT_SCRIPT_DIR/$USERDATA_START_SCRIPT_NAME /etc/init.d/
 chmod 755 /etc/init.d/$USERDATA_START_SCRIPT_NAME
 
-# set start script
+# Setup XLT init script
 echo "Install initial XLT start script"
 cp $INIT_SCRIPT_DIR/$XLT_INITD_SCRIPT_NAME /etc/init.d/
 chmod 755 /etc/init.d/$XLT_INITD_SCRIPT_NAME
 
-# container start script
+# Setup container start script
 echo "Install container start script"
 cp $SCRIPT_DIR/$ENTRYPOINT_SCRIPT_NAME /
 chmod 755 /$ENTRYPOINT_SCRIPT_NAME
