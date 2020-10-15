@@ -74,7 +74,7 @@ checkInitFile $NTP_START_SCRIPT;
 
 ## create XLT user
 echo "Create XLT user"
-adduser --disabled-login --disabled-password $XLT_USER
+adduser --disabled-login --disabled-password --gecos "" $XLT_USER
 
 
 ## update system
@@ -83,6 +83,7 @@ echo "Update system"
 apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
 # install required progs: unzip, firefox, Xvfb etc.
+echo "Install additional packages"
 DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
   wget \
   curl \
@@ -105,13 +106,16 @@ DEBIAN_FRONTEND=noninteractive apt-mark hold chromium-browser firefox
 # Get rid of SnapD
 DEBIAN_FRONTEND=noninteractive apt-get -y purge snapd
 
-# install OpenJDK11
+# Install OpenJDK11
 curl -Ls "$OPENJDK_DOWNLOAD_URL" -o /tmp/openjdk11.tgz
 echo "$OPENJDK_CHECKSUM /tmp/openjdk11.tgz" | sha256sum -c --status - || exit 1
 mkdir -p $JAVA_HOME
 tar -C $JAVA_HOME --strip-components=1 --exclude=demo --exclude=legal -xzf /tmp/openjdk11.tgz
 rm /tmp/openjdk11.tgz
 
+## install our OpenJDK dummy package to satisfy dependencies
+dpkg -i $SCRIPT_DIR/openjdk-dummy_0.0.1_all.deb
+## update Java alternatives (also links system-default Java runtime binary to installed OpenJDK)
 update-alternatives --install /usr/bin/java java $JAVA_HOME/bin/java 1099
 
 cat <<-EOF > /etc/profile.d/jdk.sh
@@ -123,14 +127,14 @@ chmod +x /etc/profile.d/jdk.sh
 # Set default keystore type to JKS
 sed -i -e 's/^\(keystore\.type\)=.*$/\1=JKS/' $JAVA_HOME/conf/security/java.security
 
-dpkg -i $SCRIPT_DIR/openjdk-dummy_0.0.1_all.deb
+# Install Root CA certs for Java
 
 apt-get install -y --no-install-recommends ca-certificates-java \
   && rm $JAVA_HOME/lib/security/cacerts \
   && ln -s /etc/ssl/certs/java/cacerts $JAVA_HOME/lib/security/
 
 
-# install Maven (Maven needs Java, so install it in the correct order)
+# Install Maven (Maven needs Java, so install it in the correct order)
 DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install maven
 
 
@@ -144,37 +148,40 @@ ln -s /usr/lib/firefox-esr/firefox /usr/bin/firefox-esr
 rm /tmp/firefox.tar.bz2
 
 # Download Geckodriver from GitHub and put it into path
+echo "Install geckodriver"
 curl -L $GECKODRIVER_DOWNLOAD_URL -o /tmp/geckodriver-linux64.tgz
 tar -xz -C /usr/bin -f /tmp/geckodriver-linux64.tgz
 chown root:root /usr/bin/geckodriver
 chmod 755 /usr/bin/geckodriver
+rm /tmp/geckodriver-linux64.tgz
 
 # Download chromedriver from Google and put it into path
+echo "Install chromedriver"
 curl -L $(_chromedriverUrl) -o /tmp/chromedriver_linux64.zip
 unzip -d /usr/bin /tmp/chromedriver_linux64.zip
 chown root:root /usr/bin/chromedriver
 chmod 755 /usr/bin/chromedriver
 rm /tmp/chromedriver_linux64.zip
 
-# setup XLT start script
+# Setup XLT start script
 echo "Install XLT start script"
 cp $SCRIPT_DIR/$XLT_START_SCRIPT_NAME $XLT_HOME
 chmod 755 $XLT_HOME/$XLT_START_SCRIPT_NAME
 chown xlt:xlt $XLT_HOME/$XLT_START_SCRIPT_NAME
 
-# set ntp script
+# Setup NTP script
 echo "Install NTP script"
 cp $INIT_SCRIPT_DIR/$NTP_START_SCRIPT /etc/init.d/
 chmod 755 /etc/init.d/$NTP_START_SCRIPT
 update-rc.d $NTP_START_SCRIPT start 19 2 3 4 5 .
 
-# user data script
+# Setup user data script
 echo "Install UserData script"
 cp $INIT_SCRIPT_DIR/$USERDATA_START_SCRIPT_NAME /etc/init.d/
 chmod 755 /etc/init.d/$USERDATA_START_SCRIPT_NAME
 update-rc.d $USERDATA_START_SCRIPT_NAME remove
 
-# set start script
+# Setup XLT init scripts
 echo "Install initial XLT start script"
 update-rc.d $XLT_INITD_SCRIPT_NAME remove
 cp $INIT_SCRIPT_DIR/$XLT_INITD_SCRIPT_NAME /etc/init.d/
@@ -194,7 +201,7 @@ else
   update-rc.d $XLT_INITD_SCRIPT_NAME defaults
 fi
 
-# set IPv6 script
+# Setup IPv6 script
 if [ -e $INIT_SCRIPT_DIR/$IPv6_SCRIPT_NAME ]; then
   echo "Install IPv6 script"
   cp $INIT_SCRIPT_DIR/$IPv6_SCRIPT_NAME /etc/init.d/
@@ -211,11 +218,11 @@ fi
 if ! grep '^\s*\*\s*hard\s*nofile' /etc/security/limits.conf; then
   echo '*       hard    nofile  128000' >> /etc/security/limits.conf
 fi
-### ... same for SystemD
-if [ -f /etc/systemd/system.conf ]; then
-  if ! grep '^\s*DefaultLimitNOFILE=' /etc/systemd/system.conf; then
-    echo "DefaultLimitNOFILE=128000" >> /etc/systemd/system.conf
+if ! grep '^\s*\*\s*soft\s*nproc' /etc/security/limits.conf; then
+  echo '*       soft    nproc  16000' >> /etc/security/limits.conf
   fi
+if ! grep '^\s*\*\s*hard\s*nproc' /etc/security/limits.conf; then
+  echo '*       hard    nproc  16000' >> /etc/security/limits.conf
 fi
 
 ## tune kernel settings

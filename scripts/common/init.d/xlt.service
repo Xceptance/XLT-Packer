@@ -7,6 +7,9 @@ Wants=network-online.target
 Type=forking
 ExecStart=/etc/init.d/xlt start
 TimeoutSec=0
+LimitNOFILE=128000
+LimitNPROC=16000
+TasksMax=16000
 
 [Install]
 WantedBy=multi-user.target
