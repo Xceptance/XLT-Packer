@@ -241,6 +241,9 @@ fi
 echo "Secure login"
 sed -ri 's/^\s*PermitRootLogin\s*yes$/PermitRootLogin\ no/g' /etc/ssh/sshd_config
 
+# remove 'unattended-upgrades'
+apt-get -q -y purge unattended-upgrades
+
 # install XLT
 echo "Installing XLT"
 SOURCE=$1
