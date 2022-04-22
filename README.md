@@ -7,6 +7,7 @@ Up to now, you can find scripts for the following cloud vendors or platforms:
  - Amazon EC2
  - Google Compute Engine
  - Docker
+ - Hetzner
 
 NOTE: Please note that this is not for cloud managing, but only for image creation.
 
@@ -139,6 +140,22 @@ See below for a corresponding variables file template:
     "registry_password": "mypassword"
   }
 ```
+
+### Hetzner Cloud Configuration ###
+
+To create a Hetzner image you can pass the following variables to packer:
+```json
+"variables": {
+    "location": "nbg1", // OPTIONAL:, The location where the image build server is started */
+    "api_token": "<YOUR_API_TOKEN>", // REQUIRED: Create one for your project at `https://console.hetzner.cloud/projects/<YOUR_PROJECT_ID>/security/tokens`
+    "xlt_version": "x.x.x", // REQUIRED: The XLT version to create the image for
+    "image_version": "x-x-x" // REQUIRED: The version displayed in the image name, produces images named "xlt-{image_version}-{timestamp}"
+  }
+```
+
+Also note, that you should create firewall rules when creating servers with this xlt Hetzner image to allow incoming network traffic on TCP port *8500* for all of your instances so that you can connect to the agent controllers.
+You can do this by adding an appropriate firewall rule in your network settings at: `https://console.hetzner.cloud/projects/<YOUR_PROJECT_ID>/firewalls`
+
 
 ## XLT at Full Throttle ##
 
