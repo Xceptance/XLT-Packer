@@ -3,7 +3,8 @@
     "location": "nbg1",
     "api_token": "<YOUR_API_TOKEN>",
     "xlt_version": "4.12.2",
-    "image_version": "4-12-2"
+    "image_version": "4-12-2",
+    "label_xlt_version": "4-x"
   },
   "builders": [
     {
@@ -13,7 +14,8 @@
       "location": "{{user `location`}}",
       "server_type": "cx11",
       "ssh_username": "root",
-      "snapshot_name": "xlt-{{user `image_version`}}-{{isotime \"v20060102\"}}"
+      "snapshot_name": "xlt-{{user `image_version`}}-{{isotime \"v20060102\"}}",
+      "snapshot_labels": { "xlt-version": "{{user `label_xlt_version`}}" }
     }
   ],
   "provisioners": [
