@@ -149,7 +149,8 @@ To create a Hetzner image you can pass the following variables to packer:
     "location": "nbg1", // OPTIONAL:, The location where the image build server is started */
     "api_token": "<YOUR_API_TOKEN>", // REQUIRED: Create one for your project at `https://console.hetzner.cloud/projects/<YOUR_PROJECT_ID>/security/tokens`
     "xlt_version": "x.x.x", // REQUIRED: The XLT version to create the image for
-    "image_version": "x-x-x" // REQUIRED: The version displayed in the image name, produces images named "xlt-{image_version}-{timestamp}"
+    "image_version": "x-x-x", // REQUIRED: The version displayed in the image name, produces images named "xlt-{image_version}-{timestamp}"
+    "label_xlt_version": "x" // REQUIRED: Set label 'xlt-version' with value of 'x'
   }
 ```
 
