@@ -154,7 +154,7 @@ To create a Hetzner image you can pass the following variables to packer:
   }
 ```
 
-Also note, that you should create firewall rules when creating servers with this xlt Hetzner image to allow incoming network traffic on TCP port *8500* for all of your instances so that you can connect to the agent controllers.
+Also note, that you should create firewall rules when creating servers with this XLT Hetzner image to allow incoming network traffic on TCP port *8500* for all of your instances so that you can connect to the agent controllers.
 You can do this by adding an appropriate firewall rule in your network settings at: `https://console.hetzner.cloud/projects/<YOUR_PROJECT_ID>/firewalls`
 
 
