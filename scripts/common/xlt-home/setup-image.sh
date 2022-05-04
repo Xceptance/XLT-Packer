@@ -239,7 +239,14 @@ fi
 
 ## secure login
 echo "Secure login"
-sed -ri 's/^\s*PermitRootLogin\s*yes$/PermitRootLogin\ no/g' /etc/ssh/sshd_config
+if [ "$2" = "enableRootLogin" ]
+then
+  echo "Enable root login"
+  sed -ri 's/^\s*PermitRootLogin\s*no$/PermitRootLogin\ yes/g' /etc/ssh/sshd_config
+else
+  echo "Disable root login"
+  sed -ri 's/^\s*PermitRootLogin\s*yes$/PermitRootLogin\ no/g' /etc/ssh/sshd_config
+fi
 
 # remove 'unattended-upgrades'
 apt-get -q -y purge unattended-upgrades
