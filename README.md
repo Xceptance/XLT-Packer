@@ -144,13 +144,20 @@ See below for a corresponding variables file template:
 ### Hetzner Cloud Configuration ###
 
 To create a Hetzner image you can pass the following variables to packer:
+- **location** *(OPTIONAL)*: The location where the image build server is started
+- **api_token** *(REQUIRED)*: Your Hetzner Cloud API token. Create one for your project at `https://console.hetzner.cloud/projects/<YOUR_PROJECT_ID>/security/tokens`
+- **xlt_version** *(REQUIRED)*: The XLT version to create the image for
+- **image_version** *(REQUIRED)*: The version displayed in the image name, produces images named `xlt-{image_version}-{timestamp}`
+- **label_xlt_version** *(REQUIRED)*: Set the label `xlt-version` to the given value
+
+**Example:**
 ```json
 "variables": {
-    "location": "nbg1", // OPTIONAL:, The location where the image build server is started */
-    "api_token": "<YOUR_API_TOKEN>", // REQUIRED: Create one for your project at `https://console.hetzner.cloud/projects/<YOUR_PROJECT_ID>/security/tokens`
-    "xlt_version": "x.x.x", // REQUIRED: The XLT version to create the image for
-    "image_version": "x-x-x", // REQUIRED: The version displayed in the image name, produces images named "xlt-{image_version}-{timestamp}"
-    "label_xlt_version": "x" // REQUIRED: Set label 'xlt-version' with value of 'x'
+    "location": "nbg1",
+    "api_token": "<YOUR_API_TOKEN>",
+    "xlt_version": "x.x.x",
+    "image_version": "x-x-x",
+    "label_xlt_version": "x"
   }
 ```
 
