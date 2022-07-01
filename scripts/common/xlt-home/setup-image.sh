@@ -300,6 +300,13 @@ if [ -d /root/.ssh ]; then
   if [ $? != 0 ]; then exit 4; fi
 fi
 
+# Execute post-installation script if present and executable
+if [ -x "$SCRIPT_DIR/post-setup.sh" ]; then
+  echo "Running post-setup"
+  exec "$SCRIPT_DIR/post-setup.sh"
+  if [ $? != 0 ]; then exit 4; fi
+fi
+
 
 ## clean up
 echo "Clean up setup files"
