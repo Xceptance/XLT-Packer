@@ -24,14 +24,14 @@ XLT_INITD_SCRIPT_NAME="xlt"
 XLT_START_SCRIPT_NAME="start-xlt.sh"
 NTP_START_SCRIPT="ntptime"
 
-FIREFOX_ESR_VERSION="78.7.0esr"
+FIREFOX_ESR_VERSION="102.0esr"
 FIREFOX_ESR_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_ESR_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_ESR_VERSION}.tar.bz2"
-FIREFOX_ESR_CHECKSUM="1059220cc97164888fe4e869c1b8e6b6b337863214b02a9eb1c776cf5c4a7480"
-GECKODRIVER_VERSION="v0.29.0"
+FIREFOX_ESR_CHECKSUM="225b5170d80ebedb9c0477a45026f617f4e2bb4d2cd3cdfa1822f8e0c6adff49"
+GECKODRIVER_VERSION="v0.31.0"
 GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz"
 
-OPENJDK_DOWNLOAD_URL="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.10_9.tar.gz"
-OPENJDK_CHECKSUM="ae78aa45f84642545c01e8ef786dfd700d2226f8b12881c844d6a1f71789cb99"
+OPENJDK_DOWNLOAD_URL="https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.15%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.15_10.tar.gz"
+OPENJDK_CHECKSUM="5fdb4d5a1662f0cca73fec30f99e67662350b1fa61460fa72e91eb9f66b54d0b"
 
 ## check referenced files existance
 function checkFile {
@@ -257,8 +257,6 @@ SOURCE=$1
 TARGET_ARCHIVE="$XLT_HOME/xlt.zip"
 
 if [ ! -f $SOURCE ]; then
-  ## Commented out since XLT releases are deployed to Sonatype now (Nexus Repository Manager v2)
-  #SOURCE="https://lab.xceptance.de/nexus/service/rest/v1/search/assets/download?group=com.xceptance&name=xlt&repository=public&maven.extension=zip&version=$SOURCE"
   SOURCE="https://oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.xceptance&a=xlt&e=zip&v=$SOURCE"
 fi
 
