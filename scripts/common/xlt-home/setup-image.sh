@@ -303,7 +303,7 @@ fi
 # Execute post-installation script if present and executable
 if [ -x "$SCRIPT_DIR/post-setup.sh" ]; then
   echo "Running post-setup"
-  exec "$SCRIPT_DIR/post-setup.sh"
+  "$SCRIPT_DIR/post-setup.sh"
   if [ $? != 0 ]; then exit 4; fi
 fi
 
