@@ -1,14 +1,14 @@
 {
   "variables": {
     "region": "eu-west-1",
-    "xlt_version": "4.12.2",
+    "xlt_version": "6.2.3",
     "image_name": "XLT-Image-{{timestamp}}",
     "launch_permission" : "",
     "aws_access_key": "<YOUR_AWS_ACCESS_KEY>",
     "aws_secret_key": "<YOUR_AWS_SECRET_KEY>",
     "aws_subnet_id": "",
-    "ssh_keypair_name": "<SSH_KEY_PAIR_NAME>",
-    "ssh_private_key_file": "<PATH_TO_SSH_PRIVATE_KEY>"
+    "ssh_keypair_name": "",
+    "ssh_private_key_file": ""
   },
   "builders": [
     {
@@ -20,13 +20,13 @@
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
-          "name": "ubuntu/images/*ubuntu-bionic-18.04-amd64-server-*",
+          "name": "ubuntu/images/*ubuntu-bionic-18.04-arm64-server-*",
           "root-device-type": "ebs"
         },
         "owners": ["099720109477"],
         "most_recent": true
       },
-      "instance_type": "t1.micro",
+      "instance_type": "c6g.medium",
       "ssh_username": "ubuntu",
       "ami_name": "{{user `image_name` | clean_resource_name}}",
       "ami_groups": "{{user `launch_permission`}}",
@@ -42,7 +42,7 @@
         }
       ],
       "tags": {
-        "Name": "XLT {{user `xlt_version`}}"
+        "Name": "XLT {{user `xlt_version`}} (arm64)"
       }
     }
   ],
@@ -63,7 +63,7 @@
         "sleep 30",
         "sudo chmod +x ~/xlt-home/*.sh",
         "sudo chmod +x ~/init.d/*",
-        "sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt_version`}} x64"
+        "sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt_version`}} arm64"
       ]
     }
   ]
