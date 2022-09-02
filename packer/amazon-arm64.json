@@ -2,6 +2,7 @@
   "variables": {
     "region": "eu-west-1",
     "xlt_version": "6.2.3",
+    "root_volume_size": "200",
     "image_name": "XLT-Image-{{timestamp}}",
     "launch_permission" : "",
     "aws_access_key": "<YOUR_AWS_ACCESS_KEY>",
@@ -36,7 +37,7 @@
       "launch_block_device_mappings": [
         {
           "delete_on_termination": true,
-          "volume_size": 200,
+          "volume_size": "{{user `root_volume_size`}}",
           "device_name": "/dev/sda1",
           "volume_type": "gp2"
         }
