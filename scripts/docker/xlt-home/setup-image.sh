@@ -113,7 +113,7 @@ mkdir -p $JAVA_HOME
 tar -C $JAVA_HOME --strip-components=1 --exclude=demo --exclude=legal -xzf /tmp/openjdk11.tgz
 rm /tmp/openjdk11.tgz
 
-## install our OpenJDK dummy package to satisfy dependencies
+## install our OpenJDK dummy package to satisfy dependencies of DEB packages that require Java
 dpkg -i $SCRIPT_DIR/openjdk-dummy_0.0.1_all.deb
 ## update Java alternatives (also links system-default Java runtime binary to installed OpenJDK)
 update-alternatives --install /usr/bin/java java $JAVA_HOME/bin/java 1099
@@ -128,8 +128,7 @@ chmod +x /etc/profile.d/jdk.sh
 sed -i -e 's/^\(keystore\.type\)=.*$/\1=JKS/' $JAVA_HOME/conf/security/java.security
 
 # Install Root CA certs for Java
-
-apt-get install -y --no-install-recommends ca-certificates-java \
+DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends install -y ca-certificates-java \
   && rm $JAVA_HOME/lib/security/cacerts \
   && ln -s /etc/ssl/certs/java/cacerts $JAVA_HOME/lib/security/
 

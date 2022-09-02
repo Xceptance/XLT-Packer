@@ -68,9 +68,10 @@ function _chromedriverUrl()
 checkFile $XLT_START_SCRIPT_NAME;
 checkFile openjdk-dummy_0.0.1_all.deb
 
-checkInitFile $USERDATA_START_SCRIPT_NAME;
-checkInitFile $XLT_INITD_SCRIPT_NAME;
-checkInitFile $NTP_START_SCRIPT;
+checkInitFile $USERDATA_START_SCRIPT_NAME
+checkInitFile $XLT_INITD_SCRIPT_NAME
+checkInitFile $NTP_START_SCRIPT
+checkInitFile $XLT_SERVICE_CONFIG
 
 ## create XLT user
 echo "Create XLT user"
@@ -113,7 +114,7 @@ mkdir -p $JAVA_HOME
 tar -C $JAVA_HOME --strip-components=1 --exclude=demo --exclude=legal -xzf /tmp/openjdk11.tgz
 rm /tmp/openjdk11.tgz
 
-## install our OpenJDK dummy package to satisfy dependencies
+## install our OpenJDK dummy package to satisfy dependencies of DEB packages that require Java
 dpkg -i $SCRIPT_DIR/openjdk-dummy_0.0.1_all.deb
 ## update Java alternatives (also links system-default Java runtime binary to installed OpenJDK)
 update-alternatives --install /usr/bin/java java $JAVA_HOME/bin/java 1099
@@ -128,11 +129,9 @@ chmod +x /etc/profile.d/jdk.sh
 sed -i -e 's/^\(keystore\.type\)=.*$/\1=JKS/' $JAVA_HOME/conf/security/java.security
 
 # Install Root CA certs for Java
-
-apt-get install -y --no-install-recommends ca-certificates-java \
+DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends install -y ca-certificates-java \
   && rm $JAVA_HOME/lib/security/cacerts \
   && ln -s /etc/ssl/certs/java/cacerts $JAVA_HOME/lib/security/
-
 
 # Install Maven (Maven needs Java, so install it in the correct order)
 DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install maven
@@ -186,6 +185,7 @@ echo "Install initial XLT start script"
 update-rc.d $XLT_INITD_SCRIPT_NAME remove
 cp $INIT_SCRIPT_DIR/$XLT_INITD_SCRIPT_NAME /etc/init.d/
 chmod 755 /etc/init.d/$XLT_INITD_SCRIPT_NAME
+
 if [ -d /etc/systemd ]; then
   # Remove "old" userdata.service - we have XLT service now!
   if [ -f /etc/systemd/system/userdata.service ]; then
