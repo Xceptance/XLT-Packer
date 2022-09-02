@@ -1,11 +1,20 @@
 #!/bin/bash
 set -e
 
-XLT_VERSION="$1"
-ARCH="$2"
+## Script parameters ##
 
+XLT_SOURCE="$1"
+ARCH="${2:-x64}"
+ENABLE_ROOT_LOGIN="$3"
+
+# Check if script is run as root user
 if ! test `id -u` -eq 0 ; then
   echo "This script must be run as root"
+  exit 1
+fi
+
+if [ -z "$XLT_SOURCE" ]; then
+  echo "Setup script must be invoked with XLT-Version or path to XLT distribution archive as 1st argument"
   exit 1
 fi
 
@@ -24,6 +33,7 @@ INIT_SCRIPT_DIR="$(dirname $SCRIPT_DIR)/init.d"
 XLT_USER="xlt"
 XLT_HOME="/home/$XLT_USER"
 XLT_WORKDIR="/mnt/$XLT_USER"
+TARGET_ARCHIVE="$XLT_HOME/xlt.zip"
 
 JAVA_HOME=/usr/lib/jvm/java-11-openjdk
 
@@ -145,11 +155,9 @@ chmod +x /etc/profile.d/jdk.sh
 sed -i -e 's/^\(keystore\.type\)=.*$/\1=JKS/' $JAVA_HOME/conf/security/java.security
 
 # Install Root CA certs for Java
-
-apt-get install -y --no-install-recommends ca-certificates-java \
+DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends install -y ca-certificates-java \
   && rm $JAVA_HOME/lib/security/cacerts \
   && ln -s /etc/ssl/certs/java/cacerts $JAVA_HOME/lib/security/
-
 
 # Install Maven (Maven needs Java, so install it in the correct order)
 DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install maven
@@ -158,6 +166,7 @@ DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install maven
 if [ "$ARCH" == "arm64" ]; then
   # install via package manager as no download available
   # TODO: firefox-esr?
+  echo "Install geckodriver + chromedriver via APT"
   DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
     chromium-chromedriver \
     firefox-geckodriver
@@ -264,7 +273,7 @@ fi
 
 ## secure login
 echo "Secure login"
-if [ "$2" = "enableRootLogin" ]
+if [ "$ENABLE_ROOT_LOGIN" = "enableRootLogin" ]
 then
   echo "Enable root login"
   sed -ri 's/^\s*PermitRootLogin\s*no$/PermitRootLogin\ yes/g' /etc/ssh/sshd_config
@@ -274,36 +283,34 @@ else
 fi
 
 # remove 'unattended-upgrades'
-apt-get -q -y purge unattended-upgrades
+DEBIAN_FRONTEND=noninteractive apt-get -q -y purge unattended-upgrades
 
 # install XLT
 echo "Installing XLT"
-SOURCE=$1
-TARGET_ARCHIVE="$XLT_HOME/xlt.zip"
 
-if [ ! -f $SOURCE ]; then
-  SOURCE="https://oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.xceptance&a=xlt&e=zip&v=$SOURCE"
+if [ ! -f $XLT_SOURCE ]; then
+  XLT_SOURCE="https://oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.xceptance&a=xlt&e=zip&v=$XLT_SOURCE"
 fi
 
-if [[ $SOURCE == http://* ]] || [[ $SOURCE == https://* ]]; then
+if [[ $XLT_SOURCE == http://* ]] || [[ $XLT_SOURCE == https://* ]]; then
   # load from URL
   echo "download ..."
-  curl -s -f -o $TARGET_ARCHIVE -L "$SOURCE"
+  curl -s -f -o "$TARGET_ARCHIVE" -L "$XLT_SOURCE"
 else
   # is not a URL -> must be a file
-  if [ -r "$SOURCE" ] && [ -f "$SOURCE" ]; then
+  if [ -r "$XLT_SOURCE" ] && [ -f "$XLT_SOURCE" ]; then
     # get from file
-    mv $SOURCE $TARGET_ARCHIVE
+    mv "$XLT_SOURCE" "$TARGET_ARCHIVE"
   fi
 fi
 
 if [ ! -f "$TARGET_ARCHIVE" ]; then
-  echo "Given parameter '$SOURCE' is neither a valid URL nor points to an existing file."
+  echo "Given parameter '$XLT_SOURCE' is neither a valid URL nor points to an existing file."
   exit 2;
 fi
 
-echo "set up rights"
-chown xlt:xlt $TARGET_ARCHIVE
+echo "Set up rights"
+chown xlt:xlt "$TARGET_ARCHIVE"
 
 
 # prepare AMI creation
@@ -334,8 +341,8 @@ fi
 ## clean up
 echo "Clean up setup files"
 
-apt-get -y clean && apt-get -y autoremove && rm -rf /var/lib/lists/*
+DEBIAN_FRONTEND=noninteractive apt-get -y clean && apt-get -y autoremove && rm -rf /var/lib/lists/*
 cd /
-rm -rf $SCRIPT_DIR $INIT_SCRIPT_DIR
+rm -rf "$SCRIPT_DIR" "$INIT_SCRIPT_DIR"
 
 echo "Setup finished."
