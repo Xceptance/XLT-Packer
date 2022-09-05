@@ -44,14 +44,14 @@ if [ "$ARCH" == "arm64" ]; then
   OPENJDK_DOWNLOAD_URL="https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.16.1%2B1/OpenJDK11U-jdk_aarch64_linux_hotspot_11.0.16.1_1.tar.gz"
   OPENJDK_CHECKSUM="2b89cabf0ce1c2cedadd92b798d6e9056bc27c71a06f5ba24ede5dc9c316e3e8"
 else
-  FIREFOX_ESR_VERSION="102.0esr"
-  FIREFOX_ESR_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_ESR_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_ESR_VERSION}.tar.bz2"
-  FIREFOX_ESR_CHECKSUM="225b5170d80ebedb9c0477a45026f617f4e2bb4d2cd3cdfa1822f8e0c6adff49"
-  GECKODRIVER_VERSION="v0.31.0"
-  GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz"
+FIREFOX_ESR_VERSION="102.0esr"
+FIREFOX_ESR_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_ESR_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_ESR_VERSION}.tar.bz2"
+FIREFOX_ESR_CHECKSUM="225b5170d80ebedb9c0477a45026f617f4e2bb4d2cd3cdfa1822f8e0c6adff49"
+GECKODRIVER_VERSION="v0.31.0"
+GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz"
 
-  OPENJDK_DOWNLOAD_URL="https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.15%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.15_10.tar.gz"
-  OPENJDK_CHECKSUM="5fdb4d5a1662f0cca73fec30f99e67662350b1fa61460fa72e91eb9f66b54d0b"
+OPENJDK_DOWNLOAD_URL="https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.15%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.15_10.tar.gz"
+OPENJDK_CHECKSUM="5fdb4d5a1662f0cca73fec30f99e67662350b1fa61460fa72e91eb9f66b54d0b"
 fi
 
 ## check referenced files existance
@@ -137,7 +137,7 @@ mkdir -p $JAVA_HOME
 tar -C $JAVA_HOME --strip-components=1 --exclude=demo --exclude=legal -xzf /tmp/openjdk11.tgz
 rm /tmp/openjdk11.tgz
 
-## install our OpenJDK dummy package to satisfy dependencies
+## install our OpenJDK dummy package to satisfy dependencies of DEB packages that require Java
 dpkg -i $SCRIPT_DIR/openjdk-dummy_0.0.1_all.deb
 ## update Java alternatives (also links system-default Java runtime binary to installed OpenJDK)
 update-alternatives --install /usr/bin/java java $JAVA_HOME/bin/java 1099
@@ -152,7 +152,6 @@ chmod +x /etc/profile.d/jdk.sh
 sed -i -e 's/^\(keystore\.type\)=.*$/\1=JKS/' $JAVA_HOME/conf/security/java.security
 
 # Install Root CA certs for Java
-
 DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends install -y ca-certificates-java \
   && rm $JAVA_HOME/lib/security/cacerts \
   && ln -s /etc/ssl/certs/java/cacerts $JAVA_HOME/lib/security/
@@ -169,30 +168,30 @@ if [ "$ARCH" == "arm64" ]; then
     chromium-chromedriver \
     firefox-geckodriver
 else
-  # Download Firefox ESR and put it into path
-  curl -L $FIREFOX_ESR_DOWNLOAD_URL -o /tmp/firefox.tar.bz2
-  echo "$FIREFOX_ESR_CHECKSUM /tmp/firefox.tar.bz2" | sha256sum -c --status - || exit 1
-  tar -xj -C /tmp -f /tmp/firefox.tar.bz2
-  [ -d /usr/lib/firefox-esr ] && rm -rf /usr/lib/firefox-esr
-  mv /tmp/firefox /usr/lib/firefox-esr
-  ln -s /usr/lib/firefox-esr/firefox /usr/bin/firefox-esr
-  rm /tmp/firefox.tar.bz2
+# Download Firefox ESR and put it into path
+curl -L $FIREFOX_ESR_DOWNLOAD_URL -o /tmp/firefox.tar.bz2
+echo "$FIREFOX_ESR_CHECKSUM /tmp/firefox.tar.bz2" | sha256sum -c --status - || exit 1
+tar -xj -C /tmp -f /tmp/firefox.tar.bz2
+[ -d /usr/lib/firefox-esr ] && rm -rf /usr/lib/firefox-esr
+mv /tmp/firefox /usr/lib/firefox-esr
+ln -s /usr/lib/firefox-esr/firefox /usr/bin/firefox-esr
+rm /tmp/firefox.tar.bz2
 
-  # Download Geckodriver from GitHub and put it into path
-  echo "Install geckodriver"
-  curl -L $GECKODRIVER_DOWNLOAD_URL -o /tmp/geckodriver-linux64.tgz
-  tar -xz -C /usr/bin -f /tmp/geckodriver-linux64.tgz
-  chown root:root /usr/bin/geckodriver
-  chmod 755 /usr/bin/geckodriver
-  rm /tmp/geckodriver-linux64.tgz
+# Download Geckodriver from GitHub and put it into path
+echo "Install geckodriver"
+curl -L $GECKODRIVER_DOWNLOAD_URL -o /tmp/geckodriver-linux64.tgz
+tar -xz -C /usr/bin -f /tmp/geckodriver-linux64.tgz
+chown root:root /usr/bin/geckodriver
+chmod 755 /usr/bin/geckodriver
+rm /tmp/geckodriver-linux64.tgz
 
-  # Download chromedriver from Google and put it into path
-  echo "Install chromedriver"
-  curl -L $(_chromedriverUrl) -o /tmp/chromedriver_linux64.zip
-  unzip -d /usr/bin /tmp/chromedriver_linux64.zip
-  chown root:root /usr/bin/chromedriver
-  chmod 755 /usr/bin/chromedriver
-  rm /tmp/chromedriver_linux64.zip
+# Download chromedriver from Google and put it into path
+echo "Install chromedriver"
+curl -L $(_chromedriverUrl) -o /tmp/chromedriver_linux64.zip
+unzip -d /usr/bin /tmp/chromedriver_linux64.zip
+chown root:root /usr/bin/chromedriver
+chmod 755 /usr/bin/chromedriver
+rm /tmp/chromedriver_linux64.zip
 fi
 
 # Setup XLT start script

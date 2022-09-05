@@ -33,7 +33,6 @@
       "type": "shell",
       "inline": [
         "chmod +x ~/xlt-home/*.sh",
-        "chmod +x ~/init.d/*",
         "~/xlt-home/setup-image.sh {{user `xlt_version`}}"
       ]
     }
@@ -54,4 +53,4 @@
       }
     ]
   ]
-} 
+}
