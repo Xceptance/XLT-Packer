@@ -34,7 +34,7 @@
       "inline": [
         "sleep 30",
         "sudo chmod +x ~/xlt-home/*.sh",
-        "sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt_version`}} enableRootLogin"
+        "sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt_version`}} x64 enableRootLogin"
       ]
     }
   ]
