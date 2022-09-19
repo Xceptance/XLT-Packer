@@ -1,6 +1,6 @@
 {
   "variables": {
-    "xlt_version": "5.1.2",
+    "xlt_version": "6.2.5",
     "image_repository": "<YOUR_ORG>/xlt",
     "image_tags": "{{user `xlt_version`}}",
     "registry_url": "",
@@ -10,7 +10,7 @@
   "builders": [
     {
       "type": "docker",
-      "image": "ubuntu:18.04",
+      "image": "debian:11",
       "commit": true,
       "changes": [
           "EXPOSE 8500",

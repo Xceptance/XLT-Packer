@@ -1,15 +1,15 @@
 {
   "variables": {
     "region": "eu-west-1",
-    "xlt_version": "6.2.3",
+    "xlt_version": "6.2.5",
     "root_volume_size": "200",
     "image_name": "XLT-Image-{{timestamp}}",
     "launch_permission" : "",
     "aws_access_key": "<YOUR_AWS_ACCESS_KEY>",
     "aws_secret_key": "<YOUR_AWS_SECRET_KEY>",
     "aws_subnet_id": "",
-    "ssh_keypair_name": "<SSH_KEY_PAIR_NAME>",
-    "ssh_private_key_file": "<PATH_TO_SSH_PRIVATE_KEY>"
+    "ssh_keypair_name": "",
+    "ssh_private_key_file": ""
   },
   "builders": [
     {
@@ -21,14 +21,14 @@
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
-          "name": "ubuntu/images/*ubuntu-bionic-18.04-amd64-server-*",
+          "name": "debian-11-amd64-*",
           "root-device-type": "ebs"
         },
-        "owners": ["099720109477"],
+        "owners": ["136693071363"],
         "most_recent": true
       },
-      "instance_type": "t1.micro",
-      "ssh_username": "ubuntu",
+      "instance_type": "t2.micro",
+      "ssh_username": "admin",
       "ami_name": "{{user `image_name` | clean_resource_name}}",
       "ami_groups": "{{user `launch_permission`}}",
       "ssh_keypair_name": "{{user `ssh_keypair_name`}}",
@@ -38,7 +38,7 @@
         {
           "delete_on_termination": true,
           "volume_size": "{{user `root_volume_size`}}",
-          "device_name": "/dev/sda1",
+          "device_name": "/dev/xvda",
           "volume_type": "gp2"
         }
       ],

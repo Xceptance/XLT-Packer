@@ -2,15 +2,15 @@
   "variables": {
     "location": "nbg1",
     "api_token": "<YOUR_API_TOKEN>",
-    "xlt_version": "4.12.2",
-    "image_version": "4-12-2",
-    "label_xlt_version": "4-x"
+    "xlt_version": "6.2.5",
+    "image_version": "6-2-5",
+    "label_xlt_version": "6-x"
   },
   "builders": [
     {
       "type": "hcloud",
       "token": "{{user `api_token`}}",
-      "image": "ubuntu-18.04",
+      "image": "debian-11",
       "location": "{{user `location`}}",
       "server_type": "cx11",
       "ssh_username": "root",
@@ -34,7 +34,7 @@
       "inline": [
         "sleep 30",
         "sudo chmod +x ~/xlt-home/*.sh",
-        "sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt_version`}} x64 enableRootLogin"
+        "sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt_version`}} amd64 enableRootLogin"
       ]
     }
   ]
