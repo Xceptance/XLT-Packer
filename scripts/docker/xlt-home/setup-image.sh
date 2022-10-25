@@ -34,8 +34,6 @@ XLT_HOME="/home/$XLT_USER"
 XLT_WORKDIR="/mnt/$XLT_USER"
 TARGET_ARCHIVE="$XLT_HOME/xlt.zip"
 
-JAVA_HOME=/usr/lib/jvm/java-11-openjdk-$ARCH
-
 USERDATA_START_SCRIPT_NAME="userdata"
 XLT_INITD_SCRIPT_NAME="xlt"
 XLT_START_SCRIPT_NAME="start-xlt.sh"
@@ -63,6 +61,10 @@ function checkInitFile {
     echo "Cannot find $FILE"
     exit 1
   fi
+}
+
+function runAsXltUser() {
+  sudo -HEu $XLT_USER $*
 }
 
 checkFile $XLT_START_SCRIPT_NAME;
@@ -96,25 +98,11 @@ DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
   chromium-driver \
   libgconf-2-4 \
   dbus-x11 \
-  git \
   jq \
   bzip2 \
   psmisc \
   sudo \
-  openjdk-11-jdk \
-  maven
-
-# TODO: tools should be in the PATH already
-# add script to set JAVA_HOME and add java tools to the PATH
-cat <<-EOF > /etc/profile.d/jdk.sh
-export JAVA_HOME=$JAVA_HOME
-export PATH=\$PATH:\$JAVA_HOME/bin
-EOF
-chmod +x /etc/profile.d/jdk.sh
-
-# TODO: still needed? there should be a fallback in the JDK.
-# Set default keystore type to JKS
-#sed -i -e 's/^\(keystore\.type\)=.*$/\1=JKS/' $JAVA_HOME/conf/security/java.security
+  openjdk-11-jdk
 
 # Download Geckodriver from GitHub and put it into path
 echo "Install geckodriver"
@@ -172,6 +160,7 @@ fi
 echo "Set up rights"
 chown xlt:xlt "$TARGET_ARCHIVE"
 
+
 # Execute post-installation script if present and executable
 if [ -x "$SCRIPT_DIR/post-setup.sh" ]; then
   echo "Running post-setup"
@@ -182,20 +171,19 @@ fi
 # print version of installed tools for verification
 echo "------------------------------------------------"
 echo "JDK:"
-java --version
+runAsXltUser java --version
 echo
 echo "Chromium:"
-chromium --version
+runAsXltUser chromium --version
 echo
 echo "Chromedriver:"
-chromedriver --version
+runAsXltUser chromedriver --version
 echo
 echo "Firefox:"
-# TODO: complains about being run as root
-#firefox --version
+runAsXltUser firefox --version
 echo
 echo "Geckodriver:"
-geckodriver --version
+runAsXltUser geckodriver --version
 echo "------------------------------------------------"
 
 ## clean up

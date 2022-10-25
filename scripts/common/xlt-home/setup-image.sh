@@ -103,10 +103,8 @@ DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
   chromium-driver \
   libgconf-2-4 \
   dbus-x11 \
-  git \
   jq \
-  openjdk-11-jdk \
-  maven
+  openjdk-11-jdk
 
 # Download Geckodriver from GitHub and put it into path
 echo "Install geckodriver"
