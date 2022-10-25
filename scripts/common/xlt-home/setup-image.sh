@@ -35,8 +35,6 @@ XLT_HOME="/home/$XLT_USER"
 XLT_WORKDIR="/mnt/$XLT_USER"
 TARGET_ARCHIVE="$XLT_HOME/xlt.zip"
 
-JAVA_HOME=/usr/lib/jvm/java-11-openjdk-$ARCH
-
 IPv6_SCRIPT_NAME="ipv6tunnel"
 MOUNT_SCRIPT_NAME="mountdev"
 USERDATA_START_SCRIPT_NAME="userdata"
@@ -67,6 +65,10 @@ function checkInitFile {
     echo "Cannot find $FILE"
     exit 1
   fi
+}
+
+function runAsXltUser() {
+  sudo -HEu $XLT_USER $*
 }
 
 checkFile $XLT_START_SCRIPT_NAME;
@@ -105,18 +107,6 @@ DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
   jq \
   openjdk-11-jdk \
   maven
-
-# TODO: tools should be in the PATH already
-# add script to set JAVA_HOME and add java tools to the PATH
-cat <<-EOF > /etc/profile.d/jdk.sh
-export JAVA_HOME=$JAVA_HOME
-export PATH=\$PATH:\$JAVA_HOME/bin
-EOF
-chmod +x /etc/profile.d/jdk.sh
-
-# TODO: still needed? there should be a fallback in the JDK.
-# Set default keystore type to JKS
-#sed -i -e 's/^\(keystore\.type\)=.*$/\1=JKS/' $JAVA_HOME/conf/security/java.security
 
 # Download Geckodriver from GitHub and put it into path
 echo "Install geckodriver"
@@ -240,6 +230,31 @@ echo "Set up rights"
 chown xlt:xlt "$TARGET_ARCHIVE"
 
 
+# Execute post-installation script if present and executable
+if [ -x "$SCRIPT_DIR/post-setup.sh" ]; then
+  echo "Running post-setup"
+  "$SCRIPT_DIR/post-setup.sh"
+  if [ $? != 0 ]; then exit 4; fi
+fi
+
+# print version of installed tools for verification
+echo "------------------------------------------------"
+echo "JDK:"
+runAsXltUser java --version
+echo
+echo "Chromium:"
+runAsXltUser chromium --version
+echo
+echo "Chromedriver:"
+runAsXltUser chromedriver --version
+echo
+echo "Firefox:"
+runAsXltUser firefox --version
+echo
+echo "Geckodriver:"
+runAsXltUser geckodriver --version
+echo "------------------------------------------------"
+
 # prepare image creation
 echo "Remove SSH stuff ..."
 
@@ -257,31 +272,6 @@ if [ -d /root/.ssh ]; then
   if [ $? != 0 ]; then exit 4; fi
 fi
 
-# Execute post-installation script if present and executable
-if [ -x "$SCRIPT_DIR/post-setup.sh" ]; then
-  echo "Running post-setup"
-  "$SCRIPT_DIR/post-setup.sh"
-  if [ $? != 0 ]; then exit 4; fi
-fi
-
-# print version of installed tools for verification
-echo "------------------------------------------------"
-echo "JDK:"
-java --version
-echo
-echo "Chromium:"
-chromium --version
-echo
-echo "Chromedriver:"
-chromedriver --version
-echo
-echo "Firefox:"
-# TODO: complains about being run as root
-#firefox --version
-echo
-echo "Geckodriver:"
-geckodriver --version
-echo "------------------------------------------------"
 
 ## clean up
 echo "Clean up setup files"
