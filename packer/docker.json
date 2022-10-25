@@ -10,7 +10,7 @@
   "builders": [
     {
       "type": "docker",
-      "image": "debian:11",
+      "image": "debian:11-slim",
       "commit": true,
       "changes": [
           "EXPOSE 8500",
