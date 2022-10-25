@@ -104,6 +104,7 @@ DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
   libgconf-2-4 \
   dbus-x11 \
   jq \
+  psmisc \
   openjdk-11-jdk
 
 # Download Geckodriver from GitHub and put it into path

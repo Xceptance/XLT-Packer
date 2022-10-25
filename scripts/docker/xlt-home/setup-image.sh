@@ -99,7 +99,6 @@ DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
   libgconf-2-4 \
   dbus-x11 \
   jq \
-  bzip2 \
   psmisc \
   sudo \
   openjdk-11-jdk
