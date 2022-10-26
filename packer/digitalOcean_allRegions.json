@@ -1,16 +1,18 @@
 {
   "variables": {
-    "xlt_version": "4.12.2",
+    "region": "nyc1",
+    "xlt_version": "6.2.5",
     "image_name": "XLT-Image-{{timestamp}}",
     "api_token": "<YOUR_DIGITAL_OCEAN_API_TOKEN>"
   },
   "builders": [
     {
       "type": "digitalocean",
+      "ssh_username": "root",
       "api_token": "{{user `api_token`}}",
-      "image": "ubuntu-18-04-x64",
-      "region": "nyc1",
-      "size": "512mb",
+      "image": "debian-11-x64",
+      "region": "{{user `region`}}",
+      "size": "s-1vcpu-512mb-10gb",
       "snapshot_name": "{{user `image_name`}}",
       "snapshot_regions": [
         "nyc1",
@@ -43,7 +45,7 @@
       "inline": [
         "sleep 30",
         "sudo chmod +x ~/xlt-home/*.sh",
-        "sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt_version`}}"
+        "sudo -E -S ~/xlt-home/setup-image.sh  {{user `xlt_version`}} amd64 enableRootLogin"
       ]
     }
   ]
