@@ -29,7 +29,7 @@ Furthermore, the following optimizations will be applied to the underlying OS to
 
 Note that these optimizations are not done for Docker as they would actually have to be applied to the OS of the host machine.
 
-When running an instance with one of these images later on, the XLT agent controller and also an SSH server (except Docker) are started automatcially. Ensure that the following ports are opened in the firewall settings of your instance:
+**Attention:** When running an instance with one of these images later on, the XLT agent controller and also an SSH server (except Docker) are started automatically. Ensure that the following ports are opened in the firewall settings of your instance:
 
 - 8500 for the XLT agent controller (required)
 - 22 for the SSH server (optional)
@@ -60,8 +60,8 @@ Before you create an image, you need to provide some additional information, suc
 
 This can be done in several ways:
 
-1. Edit the respective JSON file (e.g. _packer/digitalOcean.json_) and fill out the missing values.
-1. Provide the missing information on the command line by invoking Packer with the `-var` flag: `-var 'variable_name=value'`.
+1. Edit the respective JSON file (e.g. _packer/digitalOcean.json_) and fill out the missing values,
+1. Provide the missing information on the command line by invoking Packer with the `-var` flag: `-var 'variable_name=value'`, or
 1. Put all your variable definitions in a separate JSON file and pass it to Packer with the `-var-file` flag: `-var-file=myVars.json` (recommended).
 
 Imagine you want to create an Amazon EC2 image running XLT *6.2.5* for region *eu-central-1*. This is done by invoking Packer as follows:
@@ -131,9 +131,6 @@ Example variables file:
 }
 ```
 
-Also note that you need to allow incoming network traffic on TCP port *8500* for all of your instances so that you can connect to the agent controllers.
-You can do this by adding an appropriate security group when launching the instance(s).
-
 
 ### DigitalOcean Configuration ###
 
@@ -186,9 +183,6 @@ Example variables file:
 }
 ```
 
-Also note that you need to allow incoming network traffic on TCP port *8500* for all of your instances so that you can connect to the agent controllers.
-You can do this by adding an appropriate firewall rule in your network settings at: `https://console.developers.google.com/project/<YOUR_PROJECT_ID>/networks/list`
-
 
 ### Hetzner Cloud Configuration ###
 
@@ -211,9 +205,6 @@ Example variables file:
   "label_xlt_version": "6-x"
 }
 ```
-
-Also note that you should create firewall rules when creating servers with this XLT Hetzner image to allow incoming network traffic on TCP port *8500* for all of your instances so that you can connect to the agent controllers.
-You can do this by adding an appropriate firewall rule in your network settings at: `https://console.hetzner.cloud/projects/<YOUR_PROJECT_ID>/firewalls`
 
 
 ### Docker Configuration ###
