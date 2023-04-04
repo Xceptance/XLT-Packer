@@ -2,10 +2,10 @@
   "variables": {
     "zone": "us-central1-a",
     "account_file": "<PATH_TO_YOUR_ACCOUNT_JSON_FILE>",
-    "project": "xlt-image",
-    "xlt_version": "4.12.2",
-    "image_version": "4-12-2",
-    "image_family": "4-12-x"
+    "project": "<PROJECT_ID>",
+    "xlt_version": "6.2.5",
+    "image_version": "6-2-5",
+    "image_family": "6-x"
   },
   "builders": [
     {
@@ -13,11 +13,11 @@
       "account_file": "{{user `account_file`}}",
       "project_id": "{{user `project`}}",
       "zone": "{{user `zone`}}",
-      "source_image_family": "ubuntu-1804-lts",
+      "source_image_family": "debian-11",
       "image_name": "xlt-{{user `image_version` | clean_resource_name}}-{{isotime \"v20060102\"}}",
       "image_family": "xlt-{{user `image_family`}}",
-      "image_description": "Standard Ubuntu 18.04 LTS with XLT pre-installed.",
-      "ssh_username": "root"
+      "image_description": "Standard Debian 11 with XLT pre-installed.",
+      "ssh_username": "admin"
     }
   ],
   "provisioners": [

@@ -4,7 +4,7 @@ set -e
 ## Script parameters ##
 
 XLT_SOURCE="$1"
-ARCH="${2:-x64}"
+export ARCH="${2:-amd64}"
 
 # Check if script is run as root user
 if ! test `id -u` -eq 0 ; then
@@ -17,41 +17,33 @@ if [ -z "$XLT_SOURCE" ]; then
   exit 1
 fi
 
-if [ "$ARCH" != "x64" -a "$ARCH" != "arm64" ]; then
+if [ "$ARCH" != "amd64" -a "$ARCH" != "arm64" ]; then
   echo "Unsupported architecture: \"$ARCH\""
   exit 1
 fi
 
 echo "Building image for architecture \"$ARCH\" ..."
+
+
 ## first the variables
-SCRIPT_DIR=`realpath -m $0/..`
-INIT_SCRIPT_DIR="$(dirname $SCRIPT_DIR)/init.d"
+export SCRIPT_DIR=`realpath -m $0/..`
+export INIT_SCRIPT_DIR="$(dirname $SCRIPT_DIR)/init.d"
 
 XLT_USER="xlt"
 XLT_HOME="/home/$XLT_USER"
 XLT_WORKDIR="/mnt/$XLT_USER"
 TARGET_ARCHIVE="$XLT_HOME/xlt.zip"
 
-JAVA_HOME=/usr/lib/jvm/java-11-openjdk
-
 USERDATA_START_SCRIPT_NAME="userdata"
 XLT_INITD_SCRIPT_NAME="xlt"
 XLT_START_SCRIPT_NAME="start-xlt.sh"
 ENTRYPOINT_SCRIPT_NAME=entrypoint.sh
 
+GECKODRIVER_VERSION="v0.32.0"
 if [ "$ARCH" == "arm64" ]; then
-  # Mozilla does not provide prebuilt packages of Firefox-ESR/geckodriver for ARM -> have to install them via package manager
-  OPENJDK_DOWNLOAD_URL="https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.16.1%2B1/OpenJDK11U-jdk_aarch64_linux_hotspot_11.0.16.1_1.tar.gz"
-  OPENJDK_CHECKSUM="2b89cabf0ce1c2cedadd92b798d6e9056bc27c71a06f5ba24ede5dc9c316e3e8"
+  GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux-aarch64.tar.gz"
 else
-FIREFOX_ESR_VERSION="102.0esr"
-FIREFOX_ESR_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_ESR_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_ESR_VERSION}.tar.bz2"
-FIREFOX_ESR_CHECKSUM="225b5170d80ebedb9c0477a45026f617f4e2bb4d2cd3cdfa1822f8e0c6adff49"
-GECKODRIVER_VERSION="v0.31.0"
-GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz"
-
-OPENJDK_DOWNLOAD_URL="https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.15%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.15_10.tar.gz"
-OPENJDK_CHECKSUM="5fdb4d5a1662f0cca73fec30f99e67662350b1fa61460fa72e91eb9f66b54d0b"
+  GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz"
 fi
 
 ## check referenced files existance
@@ -71,23 +63,11 @@ function checkInitFile {
   fi
 }
 
-## helper function used to determine correct chromedriver version and its download URL
-function _chromedriverUrl()
-{
-  local chromedriver_url="https://chromedriver.storage.googleapis.com"
-  local chromium_version=`dpkg-query -s chromium-browser | sed -n 's/Version:\s*\([0-9]*\.[0-9]*\.[0-9]*\).*/\1/p'`
-  local chromedriver_version=`curl -Lsf "$chromedriver_url/LATEST_RELEASE_$chromium_version"`
-
-  if [ -z "$chromedriver_version" ]; then
-    echo "Failed to determine required version of chromedriver."
-    exit 1
-  else
-    echo "${chromedriver_url}/${chromedriver_version}/chromedriver_linux64.zip"
-  fi
+function runAsXltUser() {
+  sudo -HEu $XLT_USER $*
 }
 
 checkFile $XLT_START_SCRIPT_NAME;
-checkFile openjdk-dummy_0.0.1_all.deb
 checkFile $ENTRYPOINT_SCRIPT_NAME
 
 checkInitFile $USERDATA_START_SCRIPT_NAME;
@@ -103,79 +83,25 @@ echo "Update system"
 apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
 
-# install required progs: unzip, firefox, Xvfb etc.
+# install required packages
 echo "Install additional packages"
 DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
-  wget \
   curl \
   unzip \
   tar \
   xvfb \
   dos2unix \
   software-properties-common \
-  firefox \
   ipv6calc \
-  chromium-browser \
+  firefox-esr \
+  chromium \
+  chromium-driver \
   libgconf-2-4 \
   dbus-x11 \
-  git \
   jq \
-  bzip2 \
   psmisc \
-  sudo
-
-# Set chromium-browser and firefox on hold to prevent "accidental" update
-DEBIAN_FRONTEND=noninteractive apt-mark hold chromium-browser firefox
-
-# Get rid of SnapD
-DEBIAN_FRONTEND=noninteractive apt-get -y purge snapd
-
-# Install OpenJDK11
-curl -Ls "$OPENJDK_DOWNLOAD_URL" -o /tmp/openjdk11.tgz
-echo "$OPENJDK_CHECKSUM /tmp/openjdk11.tgz" | sha256sum -c --status - || exit 1
-mkdir -p $JAVA_HOME
-tar -C $JAVA_HOME --strip-components=1 --exclude=demo --exclude=legal -xzf /tmp/openjdk11.tgz
-rm /tmp/openjdk11.tgz
-
-## install our OpenJDK dummy package to satisfy dependencies of DEB packages that require Java
-dpkg -i $SCRIPT_DIR/openjdk-dummy_0.0.1_all.deb
-## update Java alternatives (also links system-default Java runtime binary to installed OpenJDK)
-update-alternatives --install /usr/bin/java java $JAVA_HOME/bin/java 1099
-
-cat <<-EOF > /etc/profile.d/jdk.sh
-export JAVA_HOME=$JAVA_HOME
-export PATH=\$PATH:\$JAVA_HOME/bin
-EOF
-chmod +x /etc/profile.d/jdk.sh
-
-# Set default keystore type to JKS
-sed -i -e 's/^\(keystore\.type\)=.*$/\1=JKS/' $JAVA_HOME/conf/security/java.security
-
-# Install Root CA certs for Java
-DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends install -y ca-certificates-java \
-  && rm $JAVA_HOME/lib/security/cacerts \
-  && ln -s /etc/ssl/certs/java/cacerts $JAVA_HOME/lib/security/
-
-# Install Maven (Maven needs Java, so install it in the correct order)
-DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install maven
-
-# Install Firefox-ESR, geckodriver, and chromedriver
-if [ "$ARCH" == "arm64" ]; then
-  # install via package manager as no download available
-  # TODO: firefox-esr?
-  echo "Install geckodriver + chromedriver via APT"
-  DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
-    chromium-chromedriver \
-    firefox-geckodriver
-else
-# Download Firefox ESR and put it into path
-curl -L $FIREFOX_ESR_DOWNLOAD_URL -o /tmp/firefox.tar.bz2
-echo "$FIREFOX_ESR_CHECKSUM /tmp/firefox.tar.bz2" | sha256sum -c --status - || exit 1
-tar -xj -C /tmp -f /tmp/firefox.tar.bz2
-[ -d /usr/lib/firefox-esr ] && rm -rf /usr/lib/firefox-esr
-mv /tmp/firefox /usr/lib/firefox-esr
-ln -s /usr/lib/firefox-esr/firefox /usr/bin/firefox-esr
-rm /tmp/firefox.tar.bz2
+  sudo \
+  openjdk-11-jdk
 
 # Download Geckodriver from GitHub and put it into path
 echo "Install geckodriver"
@@ -184,15 +110,6 @@ tar -xz -C /usr/bin -f /tmp/geckodriver-linux64.tgz
 chown root:root /usr/bin/geckodriver
 chmod 755 /usr/bin/geckodriver
 rm /tmp/geckodriver-linux64.tgz
-
-# Download chromedriver from Google and put it into path
-echo "Install chromedriver"
-curl -L $(_chromedriverUrl) -o /tmp/chromedriver_linux64.zip
-unzip -d /usr/bin /tmp/chromedriver_linux64.zip
-chown root:root /usr/bin/chromedriver
-chmod 755 /usr/bin/chromedriver
-rm /tmp/chromedriver_linux64.zip
-fi
 
 # Setup XLT start script
 echo "Install XLT start script"
@@ -241,6 +158,32 @@ fi
 
 echo "Set up rights"
 chown xlt:xlt "$TARGET_ARCHIVE"
+
+
+# Execute post-installation script if present and executable
+if [ -x "$SCRIPT_DIR/post-setup.sh" ]; then
+  echo "Running post-setup"
+  "$SCRIPT_DIR/post-setup.sh"
+  if [ $? != 0 ]; then exit 4; fi
+fi
+
+# print version of installed tools for verification
+echo "------------------------------------------------"
+echo "JDK:"
+runAsXltUser java --version
+echo
+echo "Chromium:"
+runAsXltUser chromium --version
+echo
+echo "Chromedriver:"
+runAsXltUser chromedriver --version
+echo
+echo "Firefox:"
+runAsXltUser firefox --version
+echo
+echo "Geckodriver:"
+runAsXltUser geckodriver --version
+echo "------------------------------------------------"
 
 ## clean up
 echo "Clean up setup files"
