@@ -39,7 +39,7 @@ XLT_INITD_SCRIPT_NAME="xlt"
 XLT_START_SCRIPT_NAME="start-xlt.sh"
 ENTRYPOINT_SCRIPT_NAME=entrypoint.sh
 
-GECKODRIVER_VERSION="v0.32.0"
+GECKODRIVER_VERSION="v0.33.0"
 if [ "$ARCH" == "arm64" ]; then
   GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux-aarch64.tar.gz"
 else
