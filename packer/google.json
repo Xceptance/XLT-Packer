@@ -13,10 +13,10 @@
       "account_file": "{{user `account_file`}}",
       "project_id": "{{user `project`}}",
       "zone": "{{user `zone`}}",
-      "source_image_family": "debian-11",
+      "source_image_family": "debian-12",
       "image_name": "xlt-{{user `image_version` | clean_resource_name}}-{{isotime \"v20060102\"}}",
       "image_family": "xlt-{{user `image_family`}}",
-      "image_description": "Standard Debian 11 with XLT pre-installed.",
+      "image_description": "Standard Debian 12 with XLT pre-installed.",
       "ssh_username": "admin"
     }
   ],

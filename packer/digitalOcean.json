@@ -10,7 +10,7 @@
       "type": "digitalocean",
       "ssh_username": "root",
       "api_token": "{{user `api_token`}}",
-      "image": "debian-11-x64",
+      "image": "debian-12-x64",
       "region": "{{user `region`}}",
       "size": "s-1vcpu-512mb-10gb",
       "snapshot_name": "{{user `image_name`}}",

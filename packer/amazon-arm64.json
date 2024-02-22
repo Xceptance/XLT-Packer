@@ -21,7 +21,7 @@
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
-          "name": "debian-11-arm64-*",
+          "name": "debian-12-arm64-*",
           "root-device-type": "ebs"
         },
         "owners": ["136693071363"],
