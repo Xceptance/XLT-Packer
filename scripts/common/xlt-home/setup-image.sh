@@ -43,7 +43,7 @@ XLT_INITD_SCRIPT_NAME="xlt"
 XLT_START_SCRIPT_NAME="start-xlt.sh"
 NTP_START_SCRIPT="ntptime"
 
-GECKODRIVER_VERSION="v0.34.0"
+GECKODRIVER_VERSION="v0.35.0"
 if [ "$ARCH" == "arm64" ]; then
   GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux-aarch64.tar.gz"
 else
