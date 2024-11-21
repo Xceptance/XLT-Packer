@@ -12,7 +12,7 @@
       "token": "{{user `api_token`}}",
       "image": "debian-12",
       "location": "{{user `location`}}",
-      "server_type": "cx11",
+      "server_type": "cpx11",
       "ssh_username": "root",
       "snapshot_name": "xlt-{{user `image_version`}}-{{isotime \"v20060102\"}}",
       "snapshot_labels": { "xlt-version": "{{user `label_xlt_version`}}" }
