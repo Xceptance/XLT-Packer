@@ -108,7 +108,7 @@ DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
 # install the Adoptium GPG key
 curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null
 # configure the Adoptium repository
-echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list > /dev/null
+echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/ { print $2 }' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list > /dev/null
 # install JDK 21
 apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install temurin-21-jdk
