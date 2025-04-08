@@ -106,7 +106,7 @@ DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
 
 ## Install JDK 21 from Adoptium repository (s. https://adoptium.net/installation/linux/)
 # install the Adoptium GPG key
-curl https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null
+curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null
 # configure the Adoptium repository
 echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list > /dev/null
 # install JDK 21
