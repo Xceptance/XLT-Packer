@@ -39,7 +39,7 @@ XLT_INITD_SCRIPT_NAME="xlt"
 XLT_START_SCRIPT_NAME="start-xlt.sh"
 ENTRYPOINT_SCRIPT_NAME=entrypoint.sh
 
-GECKODRIVER_VERSION="v0.34.0"
+GECKODRIVER_VERSION="v0.36.0"
 if [ "$ARCH" == "arm64" ]; then
   GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux-aarch64.tar.gz"
 else
@@ -101,7 +101,17 @@ DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
   jq \
   psmisc \
   sudo \
-  openjdk-17-jdk
+  gpg \
+  ca-certificates
+
+## Install JDK 21 from Adoptium repository (s. https://adoptium.net/installation/linux/)
+# install the Adoptium GPG key
+curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null
+# configure the Adoptium repository
+echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/ { print $2 }' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list > /dev/null
+# install JDK 21
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install temurin-21-jdk
 
 # Download Geckodriver from GitHub and put it into path
 echo "Install geckodriver"
