@@ -237,7 +237,7 @@ Example variables file:
 All XLT images can be parameterized with values that are passed as "user data" when a machine is started from that image. Currently an image supports these two parameters:
 
 * `acPassword` - The password that the Agent Controller requires from a remote Master Controller when authorizing any operation (defaults to "xceptance").
-* hostData` - Custom IP/hostname mappings for private hosts not listed in DNS (empty by default).
+* `hostData` - Custom IP/hostname mappings for private hosts not listed in DNS (empty by default).
 
 Both settings are optional.
 
