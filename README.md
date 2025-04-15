@@ -10,7 +10,7 @@ Up to now, you can find scripts for the following cloud vendors or platforms:
 - Hetzner
 - Docker
 
-All XLT images are based on **Debian 11 (bullseye)**, so using another base OS (even another Debian version) may not work.
+All XLT images are based on **Debian 12 ("bookworm")**, so using another base OS (even another Debian version) may not work.
 
 During image creation, the following main packages will be installed:
 
@@ -18,7 +18,7 @@ During image creation, the following main packages will be installed:
 - Chromedriver
 - Firefox ESR
 - Geckodriver
-- JDK 11
+- JDK 21
 - XLT
 
 Furthermore, the following optimizations will be applied to the underlying OS to allow for high-scale and resource-efficient load testing:
@@ -230,3 +230,30 @@ Example variables file:
   "registry_password": "<YOUR_PASSWORD>"
 }
 ```
+
+
+## Image Parameters
+
+All XLT images can be parameterized with values that are passed as "user data" when a machine is started from that image. Currently an image supports these two parameters:
+
+* `acPassword` - The password that the Agent Controller requires from a remote Master Controller when authorizing any operation (defaults to "xceptance").
+* hostData` - Custom IP/hostname mappings for private hosts not listed in DNS (empty by default).
+
+Both settings are optional.
+
+The images expect these settings to be passed as a JSON string, for example: 
+
+```json
+{
+    "acPassword": "topsecret", 
+    "hostData": "1.1.1.1 example1.com\n2.2.2.2 example2.com"
+}
+```
+
+On startup, the JSON is parsed and the values are applied as follows. The value of `acPassword` replaces the default password in the `/mnt/xlt/ac/config/agentcontroller.properties` file:
+
+```
+com.xceptance.xlt.agentcontroller.password = topsecret
+```
+
+The value of `hostData` is simply appended to `/etc/hosts`.
