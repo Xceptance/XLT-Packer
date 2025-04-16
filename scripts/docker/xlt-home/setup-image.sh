@@ -115,7 +115,7 @@ DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install temuri
 
 # Download Geckodriver from GitHub and put it into path
 echo "Install geckodriver"
-curl -L $GECKODRIVER_DOWNLOAD_URL -o /tmp/geckodriver-linux64.tgz
+curl -fsSL $GECKODRIVER_DOWNLOAD_URL -o /tmp/geckodriver-linux64.tgz
 tar -xz -C /usr/bin -f /tmp/geckodriver-linux64.tgz
 chown root:root /usr/bin/geckodriver
 chmod 755 /usr/bin/geckodriver
@@ -152,7 +152,7 @@ fi
 if [[ $XLT_SOURCE == http://* ]] || [[ $XLT_SOURCE == https://* ]]; then
   # load from URL
   echo "download ..."
-  curl -s -f -o "$TARGET_ARCHIVE" -L "$XLT_SOURCE"
+  curl -fsSL "$XLT_SOURCE" -o "$TARGET_ARCHIVE"
 else
   # is not a URL -> must be a file
   if [ -r "$XLT_SOURCE" ] && [ -f "$XLT_SOURCE" ]; then
