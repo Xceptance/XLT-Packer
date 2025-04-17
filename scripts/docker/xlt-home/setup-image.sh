@@ -6,6 +6,10 @@ set -e
 XLT_SOURCE="$1"
 export ARCH="${2:-amd64}"
 
+function err() {
+  printf >&2 "\nERROR: $1\n\n"
+  exit 1
+}
 # Check if script is run as root user
 if ! test `id -u` -eq 0 ; then
   echo "This script must be run as root"
@@ -80,8 +84,7 @@ adduser --disabled-login --disabled-password --gecos "" $XLT_USER
 ## update system
 echo "Update system"
 # update available packages
-apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
+apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
 
 # install required packages
 echo "Install additional packages"
@@ -106,20 +109,21 @@ DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
 
 ## Install JDK 21 from Adoptium repository (s. https://adoptium.net/installation/linux/)
 # install the Adoptium GPG key
-curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null
+curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null || err "Failed to install public key of Adoptum Repository"
 # configure the Adoptium repository
 echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/ { print $2 }' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list > /dev/null
 # install JDK 21
-apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install temurin-21-jdk
+apt-get update && DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install temurin-21-jdk \
+  || err "Failed to install Java 21 JDK"
 
 # Download Geckodriver from GitHub and put it into path
 echo "Install geckodriver"
-curl -fsSL $GECKODRIVER_DOWNLOAD_URL -o /tmp/geckodriver-linux64.tgz
-tar -xz -C /usr/bin -f /tmp/geckodriver-linux64.tgz
-chown root:root /usr/bin/geckodriver
-chmod 755 /usr/bin/geckodriver
-rm /tmp/geckodriver-linux64.tgz
+curl -fsSL $GECKODRIVER_DOWNLOAD_URL -o /tmp/geckodriver-linux64.tgz \
+  && tar -xz -C /usr/bin -f /tmp/geckodriver-linux64.tgz \
+  && chown root:root /usr/bin/geckodriver \
+  && chmod 755 /usr/bin/geckodriver \
+  && rm /tmp/geckodriver-linux64.tgz \
+  || err "Failed to download and install GeckoDriver binary"
 
 # Setup XLT start script
 echo "Install XLT start script"
@@ -152,7 +156,7 @@ fi
 if [[ $XLT_SOURCE == http://* ]] || [[ $XLT_SOURCE == https://* ]]; then
   # load from URL
   echo "download ..."
-  curl -fsSL "$XLT_SOURCE" -o "$TARGET_ARCHIVE"
+  curl -fsSL "$XLT_SOURCE" -o "$TARGET_ARCHIVE" || err "Failed to download XLT distribution archive"
 else
   # is not a URL -> must be a file
   if [ -r "$XLT_SOURCE" ] && [ -f "$XLT_SOURCE" ]; then
@@ -197,7 +201,9 @@ echo "------------------------------------------------"
 
 ## clean up
 echo "Clean up setup files"
-DEBIAN_FRONTEND=noninteractive apt-get -y clean && apt-get -y autoremove && rm -rf /var/lib/lists/*
+DEBIAN_FRONTEND=noninteractive apt-get -y autoremove \
+  && apt-get -y clean \
+  && rm -rf /var/lib/lists/*
 cd /
 rm -rf "$SCRIPT_DIR" "$INIT_SCRIPT_DIR"
 
