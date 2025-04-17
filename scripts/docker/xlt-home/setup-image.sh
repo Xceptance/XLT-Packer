@@ -37,6 +37,7 @@ XLT_USER="xlt"
 XLT_HOME="/home/$XLT_USER"
 XLT_WORKDIR="/mnt/$XLT_USER"
 TARGET_ARCHIVE="$XLT_HOME/xlt.zip"
+XLT_CHECKSUM_FILE="${TARGET_ARCHIVE}.sha"
 
 USERDATA_START_SCRIPT_NAME="userdata"
 XLT_INITD_SCRIPT_NAME="xlt"
@@ -46,8 +47,10 @@ ENTRYPOINT_SCRIPT_NAME=entrypoint.sh
 GECKODRIVER_VERSION="v0.36.0"
 if [ "$ARCH" == "arm64" ]; then
   GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux-aarch64.tar.gz"
+  GECKODRIVER_SHA512="3902a6f4b2d0645ebf28e6b3dcee5ab40f6a6e3b50908d25167b6ba1c5ea008c2d60199a58900ce9843f6522fc0712b54ee7b5275f475eb223601e3528067f01"
 else
   GECKODRIVER_DOWNLOAD_URL="https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz"
+  GECKODRIVER_SHA512="16cb5ab065242023517e2dc0318cc0841af4745e5676fbfdd6ee9adf45978957b4e68a6c1afb48b8dcf6a79e5bc35226c6e4c1f99c752b4f845533204081b6ee"
 fi
 
 ## check referenced files existance
@@ -119,6 +122,7 @@ apt-get update && DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends
 # Download Geckodriver from GitHub and put it into path
 echo "Install geckodriver"
 curl -fsSL $GECKODRIVER_DOWNLOAD_URL -o /tmp/geckodriver-linux64.tgz \
+  && echo "$GECKODRIVER_SHA512 /tmp/geckodriver-linux64.tgz" | sha512sum -c - \
   && tar -xz -C /usr/bin -f /tmp/geckodriver-linux64.tgz \
   && chown root:root /usr/bin/geckodriver \
   && chmod 755 /usr/bin/geckodriver \
@@ -157,6 +161,8 @@ if [[ $XLT_SOURCE == http://* ]] || [[ $XLT_SOURCE == https://* ]]; then
   # load from URL
   echo "download ..."
   curl -fsSL "$XLT_SOURCE" -o "$TARGET_ARCHIVE" || err "Failed to download XLT distribution archive"
+  curl -fsSL $(echo $XLT_SOURCE | sed -e 's/e=zip/e=zip.sha1/' -) -o "$XLT_CHECKSUM_FILE" || err "Failed to retrieve SHA1 checksum of XLT distribution archive"
+  echo "`cat $XLT_CHECKSUM_FILE` $TARGET_ARCHIVE" | sha1sum -c - && rm -f "$XLT_CHECKSUM_FILE" || err "Checksum mismatch"
 else
   # is not a URL -> must be a file
   if [ -r "$XLT_SOURCE" ] && [ -f "$XLT_SOURCE" ]; then
