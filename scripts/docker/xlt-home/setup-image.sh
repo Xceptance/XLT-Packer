@@ -161,7 +161,7 @@ if [[ $XLT_SOURCE == http://* ]] || [[ $XLT_SOURCE == https://* ]]; then
   # load from URL
   echo "download ..."
   curl -fsSL "$XLT_SOURCE" -o "$TARGET_ARCHIVE" || err "Failed to download XLT distribution archive"
-  curl -fsSL $(echo $XLT_SOURCE | sed -e 's/e=zip/e=zip.sha1/' -) -o "$XLT_CHECKSUM_FILE" || err "Failed to retrieve SHA1 checksum of XLT distribution archive"
+  curl -fsSL "$XLT_SOURCE.sha1" -o "$XLT_CHECKSUM_FILE" || err "Failed to retrieve SHA1 checksum of XLT distribution archive"
   echo "`cat $XLT_CHECKSUM_FILE` $TARGET_ARCHIVE" | sha1sum -c - && rm -f "$XLT_CHECKSUM_FILE" || err "Checksum mismatch"
 else
   # is not a URL -> must be a file
