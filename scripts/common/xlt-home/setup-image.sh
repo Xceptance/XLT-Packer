@@ -222,7 +222,7 @@ fi
 echo "Installing XLT"
 
 if [ ! -f $XLT_SOURCE ]; then
-  XLT_SOURCE="https://oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.xceptance&a=xlt&e=zip&v=$XLT_SOURCE"
+  XLT_SOURCE="https://repo1.maven.org/maven2/com/xceptance/xlt/$XLT_SOURCE/xlt-$XLT_SOURCE.zip"
 fi
 
 if [[ $XLT_SOURCE == http://* ]] || [[ $XLT_SOURCE == https://* ]]; then
