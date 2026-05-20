@@ -87,7 +87,7 @@ checkInitFile $XLT_SERVICE_CONFIG
 
 ## create XLT user
 echo "Create XLT user"
-adduser --disabled-login --disabled-password --gecos "" $XLT_USER
+useradd -m -s /usr/sbin/nologin $XLT_USER
 
 ## update system
 echo "Update system"
@@ -109,7 +109,9 @@ DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
   dbus-x11 \
   jq \
   psmisc \
-  openjdk-21-jdk
+  openjdk-21-jdk \
+  sudo \
+  ca-certificates
 
 # Download Geckodriver from GitHub and put it into path
 echo "Install geckodriver"
@@ -125,7 +127,7 @@ curl -fsSL $GECKODRIVER_DOWNLOAD_URL -o /tmp/geckodriver-linux64.tgz \
 echo "Install XLT start script"
 cp $SCRIPT_DIR/$XLT_START_SCRIPT_NAME $XLT_HOME
 chmod 755 $XLT_HOME/$XLT_START_SCRIPT_NAME
-chown xlt:xlt $XLT_HOME/$XLT_START_SCRIPT_NAME
+chown $XLT_USER:$XLT_USER $XLT_HOME/$XLT_START_SCRIPT_NAME
 
 # Setup NTP script
 echo "Install NTP script"
@@ -234,7 +236,7 @@ if [ ! -f "$TARGET_ARCHIVE" ]; then
 fi
 
 echo "Set up rights"
-chown xlt:xlt "$TARGET_ARCHIVE"
+chown $XLT_USER:$XLT_USER "$TARGET_ARCHIVE"
 
 
 # Execute post-installation script if present and executable
