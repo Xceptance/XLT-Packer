@@ -10,7 +10,7 @@
     {
       "type": "hcloud",
       "token": "{{user `api_token`}}",
-      "image": "debian-12",
+      "image": "debian-13",
       "location": "{{user `location`}}",
       "server_type": "cpx22",
       "ssh_username": "root",
