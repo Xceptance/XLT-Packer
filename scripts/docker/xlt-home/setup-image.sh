@@ -82,7 +82,7 @@ checkInitFile $XLT_INITD_SCRIPT_NAME;
 
 ## create XLT user
 echo "Create XLT user"
-adduser --disabled-login --disabled-password --gecos "" $XLT_USER
+useradd -m -s /usr/sbin/nologin $XLT_USER
 
 ## update system
 echo "Update system"
@@ -97,27 +97,16 @@ DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
   tar \
   xvfb \
   dos2unix \
-  software-properties-common \
   ipv6calc \
   firefox-esr \
   chromium \
   chromium-driver \
-  libgconf-2-4 \
   dbus-x11 \
   jq \
   psmisc \
+  openjdk-21-jdk \
   sudo \
-  gpg \
   ca-certificates
-
-## Install JDK 21 from Adoptium repository (s. https://adoptium.net/installation/linux/)
-# install the Adoptium GPG key
-curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null || err "Failed to install public key of Adoptum Repository"
-# configure the Adoptium repository
-echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/ { print $2 }' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list > /dev/null
-# install JDK 21
-apt-get update && DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install temurin-21-jdk \
-  || err "Failed to install Java 21 JDK"
 
 # Download Geckodriver from GitHub and put it into path
 echo "Install geckodriver"
@@ -133,7 +122,7 @@ curl -fsSL $GECKODRIVER_DOWNLOAD_URL -o /tmp/geckodriver-linux64.tgz \
 echo "Install XLT start script"
 cp $SCRIPT_DIR/$XLT_START_SCRIPT_NAME $XLT_HOME
 chmod 755 $XLT_HOME/$XLT_START_SCRIPT_NAME
-chown xlt:xlt $XLT_HOME/$XLT_START_SCRIPT_NAME
+chown $XLT_USER:$XLT_USER $XLT_HOME/$XLT_START_SCRIPT_NAME
 
 # Setup user data script
 echo "Install UserData script"
@@ -177,7 +166,7 @@ if [ ! -f "$TARGET_ARCHIVE" ]; then
 fi
 
 echo "Set up rights"
-chown xlt:xlt "$TARGET_ARCHIVE"
+chown $XLT_USER:$XLT_USER "$TARGET_ARCHIVE"
 
 
 # Execute post-installation script if present and executable
@@ -189,6 +178,9 @@ fi
 
 # print version of installed tools for verification
 echo "------------------------------------------------"
+echo "Debian:"
+cat /etc/debian_version
+echo
 echo "JDK:"
 runAsXltUser java --version
 echo
