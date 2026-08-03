@@ -104,7 +104,7 @@ DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
   dbus-x11 \
   jq \
   psmisc \
-  openjdk-21-jdk \
+  openjdk-25-jdk \
   sudo \
   ca-certificates
 
